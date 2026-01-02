@@ -2,363 +2,326 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Papayoo Pro - Compteur de Points</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Pro GameCenter - Multi-Jeux</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         :root {
-            --papayoo-purple: #1a1a1a;
+            --bg: #121212;
             --card-red: #e74c3c;
             --card-black: #2c3e50;
             --gold: #f1c40f;
-            --text-light: #ffffff;
+            --text: #ffffff;
+            --accent: #3498db;
             --success: #2ecc71;
         }
 
         body {
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--papayoo-purple);
-            color: var(--text-light);
-            margin: 0;
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0; padding: 10px;
+            display: flex; flex-direction: column; align-items: center;
+            min-height: 100vh;
         }
-
-        header {
-            width: 100%;
-            max-width: 600px;
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 20px;
-        }
-
-        .nav-btn {
-            background: rgba(255,255,255,0.1);
-            border: 1px solid white;
-            color: white;
-            padding: 8px 12px;
-            cursor: pointer;
-            border-radius: 5px;
-            font-size: 0.9rem;
-        }
-
-        .btn-delete { border-color: #ff4757; color: #ff4757; }
 
         .screen { width: 100%; max-width: 600px; }
         .hidden { display: none !important; }
 
-        /* Écran de Jeu */
-        .status-bar {
-            background: rgba(255,255,255,0.05);
-            padding: 15px;
-            border-radius: 12px;
-            text-align: center;
-            margin-bottom: 20px;
-            border: 2px solid #444;
+        /* --- UI --- */
+        .nav-btn {
+            background: rgba(255,255,255,0.1); border: 1px solid white; color: white;
+            padding: 10px 15px; cursor: pointer; border-radius: 8px; font-weight: bold;
         }
-
-        .dice-roll-btn {
-            background: var(--gold);
-            color: black;
-            font-weight: bold;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            margin-bottom: 10px;
-        }
-
-        .color-display {
-            font-size: 1.3rem;
-            font-weight: bold;
-            padding: 8px 15px;
-            border-radius: 8px;
-            display: inline-block;
-        }
-
-        /* Table de score */
-        .table-container { overflow-x: auto; width: 100%; }
-        table { width: 100%; border-collapse: collapse; background: rgba(0,0,0,0.2); font-size: 0.9rem; }
-        th, td { border: 1px solid rgba(255,255,255,0.1); padding: 10px; text-align: center; }
-        th { background: #333; }
-        .round-input { 
-            width: 50px; 
-            padding: 8px;
-            border-radius: 4px; 
-            border: none; 
-            text-align: center;
-            font-weight: bold;
-        }
-
-        /* Classement Final */
-        #capture-area {
-            background: var(--papayoo-purple);
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-        }
-        .leaderboard-item {
-            background: rgba(255,255,255,0.1);
-            margin: 8px 0;
-            padding: 15px;
-            border-radius: 8px;
-            display: flex;
-            justify-content: space-between;
-            font-size: 1.1rem;
-        }
-        .rank-0 { border: 2px solid var(--gold); background: rgba(241, 196, 15, 0.15); }
-
         .btn-main {
-            background: var(--success);
-            color: white;
-            border: none;
-            padding: 15px;
-            width: 100%;
-            border-radius: 8px;
-            font-size: 1.1rem;
-            cursor: pointer;
-            margin-top: 10px;
-            font-weight: bold;
+            background: var(--success); color: white; border: none; padding: 18px;
+            width: 100%; border-radius: 12px; font-size: 1.1rem; font-weight: bold;
+            cursor: pointer; margin-top: 10px;
         }
 
-        .btn-share { background: #3498db; }
-        .btn-return { background: #7f8c8d; }
-
-        /* Modal */
-        .modal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: center; z-index: 100;
+        /* --- BLACKJACK --- */
+        #bj-card-display {
+            height: 250px; width: 180px; background: white; border-radius: 15px;
+            margin: 20px auto; display: flex; align-items: center; justify-content: center;
+            font-size: 4.5rem; font-weight: bold; position: relative;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5); color: black;
         }
-        .modal-content { background: #fff; color: #333; padding: 20px; border-radius: 15px; max-width: 85%; }
+        .card-suit { position: absolute; font-size: 1.8rem; }
+        .top-left { top: 10px; left: 10px; }
+        .bottom-right { bottom: 10px; right: 10px; }
+        
+        #bj-info-panel {
+            background: #1e1e1e; padding: 20px; border-radius: 15px;
+            border: 2px solid var(--gold); margin-top: 20px;
+        }
+
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0; }
+        .stat-item { background: #2a2a2a; padding: 10px; border-radius: 8px; text-align: center; }
+        .stat-val { display: block; font-size: 1.4rem; font-weight: bold; color: var(--gold); }
+        .pro-tip-box { background: rgba(52,152,219,0.1); border-left: 4px solid var(--accent); padding: 10px; margin: 10px 0; font-size: 0.9rem; }
+
+        /* Switch */
+        .switch { position: relative; display: inline-block; width: 50px; height: 24px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #444; transition: .4s; border-radius: 24px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--success); }
+        input:checked + .slider:before { transform: translateX(26px); }
+
+        /* Papayoo Table */
+        .table-scroll { width: 100%; overflow-x: auto; background: rgba(0,0,0,0.3); border-radius: 8px; margin-top: 15px; }
+        table { width: 100%; border-collapse: collapse; min-width: 400px; }
+        th, td { border: 1px solid rgba(255,255,255,0.1); padding: 10px; text-align: center; }
     </style>
 </head>
 <body>
 
-    <header id="main-header">
-        <button class="nav-btn" onclick="toggleModal('rules-modal')">📜 Règles</button>
-        <button class="nav-btn btn-delete" onclick="confirmReset()">🗑️ Nouvelle Partie</button>
+    <header id="main-header" class="hidden">
+        <button class="nav-btn" onclick="goHome()">🏠 Accueil</button>
+        <button id="rule-btn" class="nav-btn">📜 Guide Pro</button>
     </header>
 
-    <div id="setup-screen" class="screen">
-        <h1>Papayoo</h1>
-        <p>Ajoutez les noms des joueurs (3 à 8) :</p>
-        <div id="player-inputs">
-            <div style="margin-bottom:10px"><input type="text" placeholder="Joueur 1" class="player-name"></div>
-            <div style="margin-bottom:10px"><input type="text" placeholder="Joueur 2" class="player-name"></div>
-            <div style="margin-bottom:10px"><input type="text" placeholder="Joueur 3" class="player-name"></div>
+    <div id="home-screen" class="screen">
+        <h1 style="text-align: center; margin-top: 40px;">GameCenter Pro</h1>
+        <div style="background: rgba(255,255,255,0.05); padding: 25px; border-radius: 15px; margin-bottom: 20px; cursor: pointer; border: 1px solid #333;" onclick="showScreen('papayoo-setup')">
+            <h2>🎭 Papayoo</h2>
+            <p>Compteur de points & Tirage couleur</p>
         </div>
-        <button class="nav-btn" onclick="addPlayerField()">+ Ajouter Joueur</button>
-        <button class="btn-main" onclick="startGame()">Lancer la partie</button>
+        <div style="background: rgba(255,255,255,0.05); padding: 25px; border-radius: 15px; cursor: pointer; border: 1px solid var(--gold);" onclick="showScreen('bj-setup')">
+            <h2>🃏 Blackjack Card Counting</h2>
+            <p>Entraînement Hi-Lo & Arrêts Aléatoires</p>
+        </div>
     </div>
 
-    <div id="game-screen" class="screen hidden">
-        <div class="status-bar">
-            <div id="round-counter" style="color: var(--gold); font-weight: bold; margin-bottom: 10px;">Manche 1 / ?</div>
-            <button class="dice-roll-btn" onclick="rollDice()">🎲 Tirer le Papayoo</button>
-            <div id="current-color-zone">
-                <span id="color-name" class="color-display" style="border: 1px dashed #666;">Cliquer pour tirer</span>
-            </div>
+    <div id="papayoo-setup" class="screen hidden">
+        <h1>Papayoo Setup</h1>
+        <div id="player-inputs">
+            <input type="text" placeholder="Joueur 1" class="player-name" style="width:100%; padding:12px; margin:5px 0;">
+            <input type="text" placeholder="Joueur 2" class="player-name" style="width:100%; padding:12px; margin:5px 0;">
+            <input type="text" placeholder="Joueur 3" class="player-name" style="width:100%; padding:12px; margin:5px 0;">
         </div>
+        <button class="nav-btn" onclick="addPlayerField()" style="width:100%; margin-top:10px;">+ Ajouter Joueur</button>
+        <button class="btn-main" onclick="startPapayoo()">Commencer</button>
+    </div>
 
-        <div class="table-container">
+    <div id="papayoo-game" class="screen hidden">
+        <div style="text-align:center; padding:15px; background:rgba(255,255,255,0.05); border-radius:15px;">
+            <div id="p-round-counter" style="color:var(--gold); font-weight:bold;">Manche 1</div>
+            <button class="nav-btn" style="background:var(--gold); color:black; margin:10px 0;" onclick="rollPapayoo()">🎲 Tirer Papayoo</button>
+            <div id="p-color-name" style="font-weight:bold; font-size:1.2rem;">--</div>
+        </div>
+        <div class="table-scroll">
             <table>
-                <thead><tr id="table-headers"></tr></thead>
-                <tbody id="table-body"></tbody>
+                <thead><tr id="p-headers"></tr></thead>
+                <tbody id="p-body"></tbody>
                 <tfoot>
-                    <tr id="round-entry-row"></tr>
-                    <tr id="total-scores-row" style="background: rgba(255,255,255,0.1); font-weight: bold;"></tr>
+                    <tr id="p-entry-row"></tr>
+                    <tr id="p-total-row" style="background:rgba(255,255,255,0.1); font-weight:bold;"></tr>
                 </tfoot>
             </table>
         </div>
-        
-        <button class="btn-main" onclick="saveRound()">Valider la manche</button>
+        <button class="btn-main" onclick="savePapayooRound()">Valider la manche</button>
     </div>
 
-    <div id="final-screen" class="screen hidden">
-        <div id="capture-area">
-            <h2 style="text-align: center; margin-top: 0;">🏆 Classement Final</h2>
-            <div id="leaderboard"></div>
+    <div id="bj-setup" class="screen hidden">
+        <h1>Entraînement Blackjack</h1>
+        <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+            <label>Nombre de Decks :</label>
+            <select id="bj-decks" style="width:100%; padding:12px; margin:10px 0; border-radius: 8px;">
+                <option value="6" selected>6 Decks (Casino Standard)</option>
+                <option value="2">2 Decks</option>
+                <option value="1">1 Deck</option>
+            </select>
+            
+            <label>Vitesse (sec) :</label>
+            <input type="number" id="bj-speed" value="1.5" step="0.1" style="width:100%; padding:12px; margin:10px 0; border-radius: 8px;">
+            
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 15px;">
+                <span>Mode Arrêt Aléatoire 🎲</span>
+                <label class="switch">
+                    <input type="checkbox" id="bj-random-mode">
+                    <span class="slider"></span>
+                </label>
+            </div>
         </div>
-        
-        <button class="btn-main btn-share" onclick="shareResults()">📤 Partager le classement</button>
-        <button class="btn-main btn-return" onclick="returnToGame()">⬅️ Retourner à la partie</button>
-        <button class="btn-main" style="background: #555;" onclick="location.reload()">🔄 Nouveau Match</button>
+        <button class="btn-main" onclick="startBJ()">LANCER LA SESSION</button>
     </div>
 
-    <div id="rules-modal" class="modal hidden">
-        <div class="modal-content">
-            <h3>Distribution & Échange</h3>
-            <table style="color: black; width: 100%; font-size: 0.8rem;">
-                <tr><th>Joueurs</th><th>Cartes</th><th>Échange</th></tr>
-                <tr><td>3</td><td>18</td><td>5</td></tr>
-                <tr><td>4</td><td>15</td><td>5</td></tr>
-                <tr><td>5</td><td>12</td><td>4</td></tr>
-                <tr><td>6</td><td>10</td><td>3</td></tr>
-            </table>
-            <p style="font-size: 0.9rem;"><strong>Score :</strong> Payoos = valeur facial. Papayoo (7 de l'enseigne tirée) = 40 pts. Total manche = 250.</p>
-            <button class="btn-main" onclick="toggleModal('rules-modal')">OK</button>
+    <div id="bj-game" class="screen hidden">
+        <div style="display:flex; justify-content: space-between; align-items: center;">
+            <div id="bj-cards-left">🎴 Deck: --</div>
+            <button class="nav-btn" style="background: var(--gold); color: black;" onclick="pauseBJ()">⏸ PAUSE</button>
+        </div>
+
+        <div id="bj-card-display">
+            <div class="card-suit top-left" id="bj-suit-tl"></div>
+            <div id="bj-card-val">?</div>
+            <div class="card-suit bottom-right" id="bj-suit-br"></div>
+        </div>
+
+        <div id="bj-info-panel" class="hidden">
+            <h2 id="bj-panel-title" style="color:var(--gold); margin:0; text-align: center;">ANALYSE</h2>
+            <div class="stats-grid">
+                <div class="stat-item">Running Count <span id="bj-rc" class="stat-val">?</span></div>
+                <div class="stat-item">True Count <span id="bj-tc" class="stat-val">?</span></div>
+            </div>
+            <div id="bj-advice-area" class="hidden">
+                <div id="bj-bet-example" style="font-size: 1.2rem; font-weight: bold; color: var(--success); text-align:center;"></div>
+                <div id="bj-pro-tips" class="pro-tip-box"></div>
+            </div>
+            <button id="bj-action-btn" class="btn-main" onclick="resumeBJ()">REPRENDRE</button>
         </div>
     </div>
 
     <script>
-        let players = [];
-        let currentRound = 1;
-        const suits = [
-            { name: '♠ Pique', color: '#2c3e50' },
-            { name: '♥ Cœur', color: '#e74c3c' },
-            { name: '♦ Carreau', color: '#e67e22' },
-            { name: '♣ Trèfle', color: '#27ae60' }
-        ];
+        // --- NAVIGATION ---
+        function showScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
+            document.getElementById('main-header').classList.toggle('hidden', id === 'home-screen');
+            
+            const ruleBtn = document.getElementById('rule-btn');
+            if(id.includes('bj')) ruleBtn.onclick = () => alert("Hi-Lo: 2-6 (+1), 7-9 (0), 10-A (-1). True Count = Running / Decks restants.");
+            if(id.includes('papayoo')) ruleBtn.onclick = () => alert("Total 250. Papayoo (7 de l'enseigne) = 40. Payoos = valeur faciale.");
+        }
 
+        function goHome() { 
+            clearInterval(bjInterval); 
+            showScreen('home-screen'); 
+        }
+
+        // --- PAPAYOO LOGIC ---
+        let p_players = []; let p_round = 1;
         function addPlayerField() {
             const container = document.getElementById('player-inputs');
-            if(container.children.length < 8) {
-                const div = document.createElement('div');
-                div.style.marginBottom = "10px";
-                div.innerHTML = `<input type="text" placeholder="Joueur ${container.children.length + 1}" class="player-name">`;
-                container.appendChild(div);
+            const input = document.createElement('input');
+            input.type = "text"; input.className = "player-name";
+            input.placeholder = "Joueur " + (container.children.length + 1);
+            input.style = "width:100%; padding:12px; margin:5px 0;";
+            container.appendChild(input);
+        }
+        function startPapayoo() {
+            p_players = Array.from(document.querySelectorAll('.player-name')).map(i => i.value.trim()).filter(v => v !== "").map(n => ({name:n, total:0}));
+            if(p_players.length < 3) return alert("3 joueurs minimum.");
+            showScreen('papayoo-game');
+            renderP(); resetPInputs();
+        }
+        function renderP() {
+            document.getElementById('p-headers').innerHTML = '<th>#</th>' + p_players.map(p => `<th>${p.name}</th>`).join('');
+            document.getElementById('p-total-row').innerHTML = '<td>TOT</td>' + p_players.map(p => `<td>${p.total}</td>`).join('');
+        }
+        function resetPInputs() {
+            document.getElementById('p-entry-row').innerHTML = `<td>M${p_round}</td>` + p_players.map(() => `<td><input type="number" class="p-in" style="width:50px; padding:5px;" oninput="pCalc()"></td>`).join('');
+            document.getElementById('p-round-counter').innerText = `Manche ${p_round} / ${p_players.length}`;
+        }
+        function pCalc() {
+            const ins = document.querySelectorAll('.p-in');
+            const filled = Array.from(ins).filter(i => i.value !== "");
+            if(filled.length === p_players.length - 1) {
+                const empty = Array.from(ins).find(i => i.value === "");
+                const sum = Array.from(ins).reduce((a,i) => a + (parseInt(i.value) || 0), 0);
+                empty.placeholder = 250 - sum;
+            }
+        }
+        function savePapayooRound() {
+            const ins = document.querySelectorAll('.p-in');
+            const vals = Array.from(ins).map(i => i.value === "" ? (parseInt(i.placeholder) || 0) : parseInt(i.value));
+            if(vals.reduce((a,b)=>a+b,0) !== 250) return alert("Le total doit être 250");
+            const row = document.createElement('tr'); row.innerHTML = `<td>${p_round}</td>` + vals.map(v => `<td>${v}</td>`).join('');
+            document.getElementById('p-body').appendChild(row);
+            p_players.forEach((p,i) => p.total += vals[i]);
+            renderP();
+            if(p_round >= p_players.length) alert("Partie terminée !"); else { p_round++; resetPInputs(); }
+        }
+        function rollPapayoo() {
+            const s = [{n:'♠ PIQUE',c:'#2c3e50'},{n:'♥ COEUR',c:'#e74c3c'},{n:'♦ CARREAU',c:'#e67e22'},{n:'♣ TREFLE',c:'#27ae60'}][Math.floor(Math.random()*4)];
+            const el = document.getElementById('p-color-name'); el.innerText = s.n; el.style.color = s.c;
+        }
+
+        // --- BLACKJACK LOGIC ---
+        let bjDeck = []; let bjRunningCount = 0; let bjInterval = null; let bjIsPaused = false;
+
+        function startBJ() {
+            const numDecks = parseInt(document.getElementById('bj-decks').value);
+            bjDeck = [];
+            const cards = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+            const suits = ['♠','♥','♦','♣'];
+            for(let d=0; d<numDecks; d++) {
+                for(let s of suits) { for(let c of cards) { bjDeck.push({val: c, suit: s}); } }
+            }
+            bjDeck.sort(() => Math.random() - 0.5);
+            bjRunningCount = 0;
+            showScreen('bj-game');
+            resumeBJ();
+        }
+
+        function dealCard() {
+            if(bjDeck.length === 0) { clearInterval(bjInterval); alert("Fin du sabot !"); return; }
+            const card = bjDeck.pop();
+            const valEl = document.getElementById('bj-card-val');
+            valEl.innerText = card.val;
+            valEl.style.color = (card.suit === '♥' || card.suit === '♦') ? 'var(--card-red)' : 'var(--card-black)';
+            document.querySelectorAll('.card-suit').forEach(el => { el.innerText = card.suit; el.style.color = valEl.style.color; });
+            document.getElementById('bj-cards-left').innerText = `🎴 Deck: ${bjDeck.length} (${(bjDeck.length/52).toFixed(1)} rem.)`;
+            
+            if(['2','3','4','5','6'].includes(card.val)) bjRunningCount++;
+            else if(['10','J','Q','K','A'].includes(card.val)) bjRunningCount--;
+
+            if(document.getElementById('bj-random-mode').checked && Math.random() < 0.10) {
+                setTimeout(triggerRandomStop, 600);
             }
         }
 
-        function startGame() {
-            const inputs = document.querySelectorAll('.player-name');
-            players = Array.from(inputs)
-                .map(i => i.value.trim())
-                .filter(name => name !== "")
-                .map(name => ({ name: name, total: 0 }));
+        function triggerRandomStop() {
+            clearInterval(bjInterval); bjIsPaused = true;
+            document.getElementById('bj-panel-title').innerText = "🎲 TEST !";
+            document.getElementById('bj-rc').innerText = "???";
+            document.getElementById('bj-tc').innerText = "???";
+            document.getElementById('bj-advice-area').classList.add('hidden');
+            const btn = document.getElementById('bj-action-btn');
+            btn.innerText = "👁️ RÉVÉLER";
+            btn.style.background = "var(--gold)";
+            btn.onclick = () => revealStats();
+            document.getElementById('bj-info-panel').classList.remove('hidden');
+        }
 
-            if (players.length < 3) return alert("Minimum 3 joueurs !");
+        function pauseBJ() {
+            clearInterval(bjInterval); bjIsPaused = true;
+            document.getElementById('bj-panel-title').innerText = "PAUSE";
+            revealStats();
+        }
 
-            document.getElementById('setup-screen').classList.add('hidden');
-            document.getElementById('game-screen').classList.remove('hidden');
-            document.getElementById('round-counter').innerText = `Manche 1 / ${players.length}`;
+        function revealStats() {
+            const decksRem = Math.max(0.5, bjDeck.length / 52);
+            const tc = Math.floor(bjRunningCount / decksRem);
+            document.getElementById('bj-rc').innerText = bjRunningCount;
+            document.getElementById('bj-tc').innerText = tc;
+            document.getElementById('bj-advice-area').classList.remove('hidden');
             
-            renderTableHeaders();
-            updateTotals();
-            resetRoundInputs();
-        }
-
-        function rollDice() {
-            const random = Math.floor(Math.random() * 4);
-            const choice = suits[random];
-            const display = document.getElementById('color-name');
-            display.innerText = choice.name;
-            display.style.backgroundColor = choice.color;
-            display.style.color = "white";
-        }
-
-        function renderTableHeaders() {
-            const headerRow = document.getElementById('table-headers');
-            headerRow.innerHTML = '<th>R</th>' + players.map(p => `<th>${p.name.substring(0,6)}</th>`).join('');
-        }
-
-        function resetRoundInputs() {
-            const entryRow = document.getElementById('round-entry-row');
-            entryRow.innerHTML = `<td>M${currentRound}</td>` + players.map((p, i) => 
-                `<td><input type="number" min="0" class="round-input" oninput="autoCalc()"></td>`
-            ).join('');
-        }
-
-        function autoCalc() {
-            const inputs = document.querySelectorAll('.round-input');
-            const filled = Array.from(inputs).filter(i => i.value !== "");
+            const bet = document.getElementById('bj-bet-example');
+            const pro = document.getElementById('bj-pro-tips');
             
-            if (filled.length === players.length - 1) {
-                const empty = Array.from(inputs).find(i => i.value === "");
-                const currentSum = Array.from(inputs).reduce((acc, i) => acc + (Math.max(0, parseInt(i.value) || 0)), 0);
-                empty.placeholder = Math.max(0, 250 - currentSum);
+            if(tc >= 3) { bet.innerText = "MISE : 8-12 UNITÉS"; pro.innerHTML = "Avantage joueur max ! Prenez l'assurance."; }
+            else if(tc >= 1) { bet.innerText = `MISE : ${tc*2} UNITÉS`; pro.innerHTML = "L'avantage bascule. Montez vos mises."; }
+            else { bet.innerText = "MISE : 1 UNITÉ"; pro.innerHTML = "Sabot neutre ou froid. Restez prudent."; }
+
+            const btn = document.getElementById('bj-action-btn');
+            btn.innerText = "REPRENDRE"; btn.style.background = "var(--success)";
+            btn.onclick = resumeBJ;
+            document.getElementById('bj-info-panel').classList.remove('hidden');
+        }
+
+        function resumeBJ() {
+            bjIsPaused = false;
+            document.getElementById('bj-info-panel').classList.add('hidden');
+            bjInterval = setInterval(dealCard, parseFloat(document.getElementById('bj-speed').value) * 1000);
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if(e.code === "Space" && !document.getElementById('bj-game').classList.contains('hidden')) {
+                bjIsPaused ? resumeBJ() : pauseBJ(); e.preventDefault();
             }
-        }
-
-        function saveRound() {
-            const inputs = document.querySelectorAll('.round-input');
-            let values = Array.from(inputs).map(i => {
-                let val = i.value === "" ? (parseInt(i.placeholder) || 0) : parseInt(i.value);
-                return Math.max(0, val); // Force pas de négatif
-            });
-
-            const sum = values.reduce((a, b) => a + b, 0);
-            
-            if(sum !== 250) {
-                alert(`ERREUR : Le total est de ${sum} au lieu de 250 !\n\nVérifiez les points (7 de l'enseigne = 40, les Payoos = 1 à 20).`);
-                return;
-            }
-
-            const row = document.createElement('tr');
-            row.innerHTML = `<td>${currentRound}</td>` + values.map(v => `<td>${v}</td>`).join('');
-            document.getElementById('table-body').appendChild(row);
-
-            players.forEach((p, i) => p.total += values[i]);
-            updateTotals();
-
-            if (currentRound >= players.length) {
-                showFinalScreen();
-            } else {
-                currentRound++;
-                document.getElementById('round-counter').innerText = `Manche ${currentRound} / ${players.length}`;
-                resetRoundInputs();
-                document.getElementById('color-name').innerText = "Cliquer pour tirer";
-                document.getElementById('color-name').style.backgroundColor = "transparent";
-            }
-        }
-
-        function updateTotals() {
-            const row = document.getElementById('total-scores-row');
-            row.innerHTML = '<td>TOT</td>' + players.map(p => `<td>${p.total}</td>`).join('');
-        }
-
-        function showFinalScreen() {
-            document.getElementById('game-screen').classList.add('hidden');
-            document.getElementById('final-screen').classList.remove('hidden');
-
-            const sorted = [...players].sort((a, b) => a.total - b.total);
-            const container = document.getElementById('leaderboard');
-            const emojis = ['🥇', '🥈', '🥉', '👏', '😐', '😅', '💀', '🤡'];
-
-            container.innerHTML = sorted.map((p, i) => `
-                <div class="leaderboard-item rank-${i}">
-                    <span>${emojis[i] || '▫️'} <strong>${p.name}</strong></span>
-                    <span>${p.total} pts</span>
-                </div>
-            `).join('');
-        }
-
-        function returnToGame() {
-            document.getElementById('final-screen').classList.add('hidden');
-            document.getElementById('game-screen').classList.remove('hidden');
-        }
-
-        async function shareResults() {
-            const captureArea = document.getElementById('capture-area');
-            
-            // On utilise html2canvas pour créer une image du classement uniquement
-            const canvas = await html2canvas(captureArea, { backgroundColor: '#1a1a1a' });
-            canvas.toBlob(async (blob) => {
-                const file = new File([blob], 'resultats-papayoo.png', { type: 'image/png' });
-                
-                if (navigator.share) {
-                    try {
-                        await navigator.share({
-                            files: [file],
-                            title: 'Résultats Papayoo',
-                            text: 'Voici le score de notre partie !'
-                        });
-                    } catch (err) {
-                        console.error("Erreur de partage:", err);
-                    }
-                } else {
-                    alert("Le partage n'est pas supporté sur ce navigateur. Vous pouvez faire une capture d'écran !");
-                }
-            });
-        }
-
-        function toggleModal(id) { document.getElementById(id).classList.toggle('hidden'); }
-        
-        function confirmReset() {
-            if(confirm("Voulez-vous vraiment effacer cette partie et recommencer ?")) location.reload();
-        }
+        });
     </script>
 </body>
 </html>
