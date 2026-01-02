@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Jeux - Mastery Pro</title>
+    <title>Jeux - Blackjack Mastery</title>
     <style>
         :root {
             --bg: #0a0a0a;
@@ -12,142 +12,118 @@
             --text: #ffffff;
             --green: #27ae60;
             --red: #e74c3c;
-            --accent: #3498db;
         }
 
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0; padding: 0;
-            display: flex; flex-direction: column; align-items: center;
-        }
-
-        .screen { width: 100%; max-width: 500px; padding: 20px; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; overflow-x: hidden; }
+        .screen { width: 100%; max-width: 500px; padding: 20px; margin: auto; box-sizing: border-box; }
         .hidden { display: none !important; }
 
         /* --- UI --- */
-        .glass { background: var(--panel); border: 1px solid #333; border-radius: 15px; padding: 20px; margin-bottom: 20px; }
-        .btn { padding: 15px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; text-transform: uppercase; }
+        .glass { background: var(--panel); border: 1px solid #333; border-radius: 15px; padding: 15px; margin-bottom: 15px; }
+        .btn { padding: 12px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; text-transform: uppercase; font-size: 0.8rem; }
         .btn-gold { background: var(--gold); color: black; width: 100%; }
-        .btn-action { background: #333; color: white; flex: 1; margin: 5px; border: 1px solid #555; }
-        
+        .btn-action { background: #333; color: white; flex: 1; margin: 3px; border: 1px solid #555; }
+        .btn-action:disabled { opacity: 0.3; cursor: not-allowed; }
+
         /* --- TABS --- */
-        .tab-container { display: flex; background: #222; border-radius: 10px; padding: 5px; margin-bottom: 20px; }
-        .tab { flex: 1; text-align: center; padding: 10px; cursor: pointer; border-radius: 8px; transition: 0.3s; font-size: 0.9rem; font-weight: bold; color: #888; }
+        .tab-container { display: flex; background: #222; border-radius: 10px; padding: 5px; margin-bottom: 15px; }
+        .tab { flex: 1; text-align: center; padding: 10px; cursor: pointer; border-radius: 8px; font-size: 0.8rem; font-weight: bold; color: #888; }
         .tab.active { background: var(--gold); color: black; }
 
         /* --- CARDS --- */
-        #card-display-auto {
-            height: 250px; width: 180px; background: white; border-radius: 15px;
-            margin: 20px auto; display: flex; align-items: center; justify-content: center;
-            font-size: 4.5rem; font-weight: bold; position: relative; color: black;
-            box-shadow: 0 0 30px rgba(212, 175, 55, 0.2);
+        .hand-container { display: flex; justify-content: center; gap: 5px; min-height: 90px; margin: 10px 0; flex-wrap: wrap; }
+        .mini-card { 
+            width: 55px; height: 80px; background: white; border-radius: 6px; color: black; 
+            display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.1rem;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            animation: slideIn 0.4s ease-out;
         }
-        .hand-container { display: flex; justify-content: center; gap: 8px; min-height: 110px; margin: 10px 0; }
-        .mini-card { width: 65px; height: 90px; background: white; border-radius: 6px; color: black; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.3rem; }
+        @keyframes slideIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-        /* --- INFO --- */
-        .badge { background: var(--gold); color: black; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; }
-        .feedback { padding: 12px; border-radius: 8px; margin-top: 10px; font-weight: bold; text-align: center; display: none; }
+        .active-hand { border: 2px solid var(--gold); border-radius: 10px; padding: 5px; background: rgba(212, 175, 55, 0.05); }
+        .score-badge { background: var(--gold); color: black; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; }
+
+        /* --- AUTO MODE --- */
+        #card-display-auto { height: 200px; width: 140px; background: white; border-radius: 12px; margin: 20px auto; display: flex; align-items: center; justify-content: center; font-size: 4rem; font-weight: bold; color: black; }
     </style>
 </head>
 <body>
 
     <div id="home-screen" class="screen">
-        <div style="text-align: center; margin: 50px 0;">
-            <h1 style="font-size: 3.5rem; letter-spacing: 8px; margin: 0; color: var(--gold);">JEUX</h1>
-            <p style="letter-spacing: 4px; color: #888;">TRAINING & STRATÉGIE</p>
+        <div style="text-align: center; margin: 40px 0;">
+            <h1 style="font-size: 3rem; letter-spacing: 5px; margin: 0; color: var(--gold);">JEUX</h1>
+            <p style="letter-spacing: 3px; color: #888;">STRATÉGIE PRO</p>
         </div>
-        
         <div class="glass" onclick="showScreen('bj-main')" style="cursor: pointer; border-left: 4px solid var(--gold);">
-            <h2 style="margin:0; color:var(--gold);">🃏 Blackjack Trainer</h2>
-            <p style="color:#aaa; font-size:0.9rem; margin-top:5px;">Mode Vitesse (auto) ou Mode Jeu (décisions).</p>
-        </div>
-
-        <div class="glass" onclick="alert('Bientôt disponible')" style="opacity: 0.5;">
-            <h2 style="margin:0;">🎭 Papayoo</h2>
-            <p style="color:#aaa; font-size:0.9rem; margin-top:5px;">Compteur de score pro.</p>
+            <h2>🃏 Blackjack Trainer</h2>
+            <p style="color:#aaa; font-size:0.8rem;">Vitesse ou Jeu Réel avec Multi-Split.</p>
         </div>
     </div>
 
     <div id="bj-main" class="screen hidden">
         <header style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <button class="btn" style="color:var(--gold); background:none; padding:0;" onclick="goHome()">← RETOUR</button>
-            <div id="bj-deck-status" style="font-size:0.7rem; color:#888;">DECK: --</div>
+            <button class="btn" style="color:var(--gold); background:none;" onclick="location.reload()">← MENU</button>
+            <div id="deck-status" style="font-size:0.7rem; color:#888;">DECK: --</div>
         </header>
 
         <div class="tab-container">
-            <div id="tab-vitesse" class="tab active" onclick="switchTab('vitesse')">VITESSE (AUTO)</div>
-            <div id="tab-jeu" class="tab" onclick="switchTab('jeu')">JEU (RÉEL)</div>
+            <div id="tab-vitesse" class="tab active" onclick="switchTab('vitesse')">VITESSE</div>
+            <div id="tab-jeu" class="tab" onclick="switchTab('jeu')">JEU RÉEL</div>
         </div>
 
         <div id="mode-vitesse-ui">
             <div class="glass" id="setup-vitesse">
-                <label style="font-size:0.8rem; color:#888;">VITESSE (SEC/CARTE)</label>
+                <label>VITESSE (SEC/CARTE)</label>
                 <input type="number" id="vitesse-val" value="1.5" step="0.1" style="width:100%; padding:10px; margin:10px 0; background:#222; border:1px solid #444; color:white;">
-                <div style="display:flex; justify-content: space-between; align-items: center;">
-                    <span style="font-size:0.9rem;">Arrêt Aléatoire 🎲</span>
-                    <input type="checkbox" id="vitesse-random">
-                </div>
-                <button class="btn btn-gold" style="margin-top:15px;" onclick="startAutoMode()">Lancer le défilement</button>
+                <button class="btn btn-gold" onclick="startAutoMode()">Lancer</button>
             </div>
-
-            <div id="auto-play-area" class="hidden">
+            <div id="auto-play-area" class="hidden" style="text-align:center;">
                 <div id="card-display-auto">?</div>
-                <div style="display:flex; gap:10px;">
-                    <button id="btn-pause-auto" class="btn btn-action" onclick="pauseAuto()">PAUSE</button>
-                    <button class="btn btn-action" onclick="showAnalysis()">ANALYSE</button>
-                </div>
+                <button id="btn-pause-auto" class="btn btn-action" onclick="pauseAuto()">PAUSE</button>
+                <button class="btn btn-action" onclick="showAnalysis()">ANALYSE</button>
             </div>
         </div>
 
         <div id="mode-jeu-ui" class="hidden">
-            <div class="glass" id="setup-jeu">
-                <label style="font-size:0.8rem; color:#888;">NOMBRE DE DECKS</label>
-                <select id="jeu-decks" style="width:100%; padding:10px; margin:10px 0; background:#222; border:1px solid #444; color:white;">
-                    <option value="6">6 Decks</option>
-                    <option value="2">2 Decks</option>
-                    <option value="1">1 Deck</option>
-                </select>
-                <button class="btn btn-gold" onclick="startJeuMode()">Lancer la partie</button>
+            <div class="glass" id="setup-jeu" style="text-align:center;">
+                <button class="btn btn-gold" onclick="startJeuMode()">Démarrer Sabot (6 Decks)</button>
             </div>
 
             <div id="jeu-play-area" class="hidden">
-                <div style="text-align:center; font-size:0.7rem; color:#777; margin-bottom:5px;">DEALER <span id="d-score" class="badge">?</span></div>
+                <div style="text-align:center; font-size:0.7rem; color:#888;">DEALER <span id="d-score" class="score-badge">?</span></div>
                 <div id="dealer-hand" class="hand-container"></div>
-                <div style="text-align:center; font-size:0.7rem; color:#777; margin-bottom:5px;">PLAYER <span id="p-score" class="badge">0</span></div>
-                <div id="player-hand" class="hand-container"></div>
-                
-                <div id="jeu-actions" style="display:flex;">
-                    <button class="btn btn-action" onclick="playerHit()">TIRER</button>
-                    <button class="btn btn-action" onclick="playerStand()">RESTER</button>
+
+                <div id="player-hands-wrapper"></div>
+
+                <div id="jeu-actions" style="display:flex; flex-wrap: wrap; margin-top:10px;">
+                    <button class="btn btn-action" id="btn-hit" onclick="playerHit()">Tirer</button>
+                    <button class="btn btn-action" id="btn-stand" onclick="playerStand()">Rester</button>
+                    <button class="btn btn-action" id="btn-split" onclick="playerSplit()">Split</button>
                 </div>
-                <div id="jeu-feedback" class="feedback"></div>
-                <button id="next-hand-btn" class="btn btn-gold hidden" style="margin-top:10px;" onclick="nextHand()">MAIN SUIVANTE</button>
-                <button id="check-btn-jeu" class="btn hidden" style="width:100%; color:var(--gold); font-size:0.8rem;" onclick="showAnalysis()">VÉRIFIER LE COMPTE</button>
+                
+                <div id="jeu-msg" style="text-align:center; margin:10px; font-weight:bold; color:var(--gold);"></div>
+                <button id="next-hand-btn" class="btn btn-gold hidden" onclick="nextHand()">Main Suivante</button>
+                <button class="btn hidden" id="check-jeu" style="width:100%; color:#888;" onclick="showAnalysis()">Vérifier Compte</button>
             </div>
         </div>
     </div>
 
-    <div id="modal-analyse" class="screen hidden" style="position:fixed; top:0; background:rgba(0,0,0,0.98); height:100vh; z-index:100; padding-top:60px;">
-        <h2 style="color:var(--gold); text-align:center;">ANALYSE DU COMPTE</h2>
-        <div class="glass" style="text-align:center;">
-            <p style="color:#888; font-size:0.9rem;">RUNNING COUNT</p>
-            <div id="res-rc" style="font-size:3.5rem; font-weight:bold; color:var(--gold);">0</div>
-            <p style="color:#888; font-size:0.9rem; margin-top:20px;">TRUE COUNT (VALEUR RÉELLE)</p>
-            <div id="res-tc" style="font-size:1.5rem; font-weight:bold;">0</div>
-            <div id="res-advice" style="margin-top:20px; font-size:0.85rem; color:#ccc; border-top:1px solid #333; padding-top:15px;"></div>
+    <div id="modal-analyse" class="screen hidden" style="position:fixed; top:0; left:0; background:rgba(0,0,0,0.95); height:100vh; z-index:1000; display:flex; flex-direction:column; justify-content:center;">
+        <h2 style="color:var(--gold); text-align:center;">ANALYSE</h2>
+        <div class="glass" style="text-align:center; margin:20px;">
+            <p>RUNNING COUNT</p>
+            <div id="res-rc" style="font-size:3rem; font-weight:bold; color:var(--gold);">0</div>
+            <p>TRUE COUNT : <span id="res-tc">0</span></p>
         </div>
-        <button class="btn btn-gold" onclick="closeAnalysis()">RETOURNER AU JEU</button>
+        <button class="btn btn-gold" onclick="document.getElementById('modal-analyse').classList.add('hidden')">RETOUR</button>
     </div>
 
     <script>
         let deck = [];
         let runningCount = 0;
         let autoInterval = null;
-        let currentMode = 'vitesse';
-        let playerHand = [];
+        let playerHands = []; // Tableau d'objets { cards: [], status: 'active'|'stay'|'bust' }
+        let currentHandIdx = 0;
         let dealerHand = [];
         let isGameOver = false;
 
@@ -156,162 +132,178 @@
             document.getElementById(id).classList.remove('hidden');
         }
 
-        function goHome() { clearInterval(autoInterval); showScreen('home-screen'); }
-
-        function switchTab(mode) {
-            currentMode = mode;
+        function switchTab(m) {
             clearInterval(autoInterval);
-            document.getElementById('tab-vitesse').classList.toggle('active', mode === 'vitesse');
-            document.getElementById('tab-jeu').classList.toggle('active', mode === 'jeu');
-            document.getElementById('mode-vitesse-ui').classList.toggle('hidden', mode !== 'vitesse');
-            document.getElementById('mode-jeu-ui').classList.toggle('hidden', mode !== 'jeu');
-            resetSession();
+            document.getElementById('tab-vitesse').classList.toggle('active', m === 'vitesse');
+            document.getElementById('tab-jeu').classList.toggle('active', m === 'jeu');
+            document.getElementById('mode-vitesse-ui').classList.toggle('hidden', m !== 'vitesse');
+            document.getElementById('mode-jeu-ui').classList.toggle('hidden', m !== 'jeu');
         }
 
-        function resetSession() {
-            runningCount = 0;
-            initDeck(mode === 'jeu' ? document.getElementById('jeu-decks').value : 6);
-        }
-
-        function initDeck(n) {
+        function initDeck(n=6) {
             const v = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
             const s = ['♠','♥','♦','♣'];
             deck = [];
             for(let i=0; i<n; i++) for(let suit of s) for(let val of v) deck.push({v:val, s:suit});
             deck.sort(() => Math.random() - 0.5);
-            updateStatus();
         }
 
-        function updateStatus() {
-            document.getElementById('bj-deck-status').innerText = `DECK: ${(deck.length/52).toFixed(1)} RESTANTS`;
+        function updateRC(val) {
+            if(['2','3','4','5','6'].includes(val)) runningCount++;
+            if(['10','J','Q','K','A'].includes(val)) runningCount--;
+            document.getElementById('deck-status').innerText = `DECK: ${(deck.length/52).toFixed(1)}`;
         }
 
-        // --- LOGIQUE AUTO ---
+        // --- MODE AUTO ---
         function startAutoMode() {
-            initDeck(6);
-            runningCount = 0;
+            initDeck(); runningCount = 0;
             document.getElementById('setup-vitesse').classList.add('hidden');
             document.getElementById('auto-play-area').classList.remove('hidden');
             resumeAuto();
         }
-
-        function nextAutoCard() {
-            if(deck.length === 0) { pauseAuto(); return alert("Fin du paquet"); }
-            const c = deck.pop();
-            const el = document.getElementById('card-display-auto');
-            el.innerText = c.v;
-            el.style.color = (c.s === '♥' || c.s === '♦') ? 'var(--red)' : 'black';
-            updateRunningCount(c.v);
-            updateStatus();
-            
-            if(document.getElementById('vitesse-random').checked && Math.random() < 0.12) {
-                pauseAuto();
-                document.getElementById('card-display-auto').innerText = "???";
-            }
+        function resumeAuto() {
+            const spd = parseFloat(document.getElementById('vitesse-val').value) * 1000;
+            autoInterval = setInterval(() => {
+                if(deck.length === 0) return pauseAuto();
+                const c = deck.pop();
+                const el = document.getElementById('card-display-auto');
+                el.innerText = c.v;
+                el.style.color = (c.s === '♥' || c.s === '♦') ? 'var(--red)' : 'black';
+                updateRC(c.v);
+            }, spd);
         }
+        function pauseAuto() { clearInterval(autoInterval); }
 
-        function pauseAuto() { clearInterval(autoInterval); autoInterval = null; document.getElementById('btn-pause-auto').innerText = "REPRENDRE"; document.getElementById('btn-pause-auto').onclick = resumeAuto; }
-        function resumeAuto() { 
-            const speed = parseFloat(document.getElementById('vitesse-val').value) * 1000;
-            autoInterval = setInterval(nextAutoCard, speed); 
-            document.getElementById('btn-pause-auto').innerText = "PAUSE"; 
-            document.getElementById('btn-pause-auto').onclick = pauseAuto; 
-        }
-
-        // --- LOGIQUE JEU ---
+        // --- MODE JEU ---
         function startJeuMode() {
-            initDeck(document.getElementById('jeu-decks').value);
-            runningCount = 0;
+            initDeck(); runningCount = 0;
             document.getElementById('setup-jeu').classList.add('hidden');
             document.getElementById('jeu-play-area').classList.remove('hidden');
             nextHand();
         }
 
-        function nextHand() {
-            if(deck.length < 10) initDeck(6);
-            playerHand = []; dealerHand = []; isGameOver = false;
-            document.getElementById('jeu-feedback').style.display = 'none';
+        async function nextHand() {
+            if(deck.length < 15) initDeck();
+            playerHands = [{ cards: [], status: 'active' }];
+            dealerHand = [];
+            currentHandIdx = 0;
+            isGameOver = false;
+            document.getElementById('jeu-msg').innerText = "";
             document.getElementById('next-hand-btn').classList.add('hidden');
-            document.getElementById('check-btn-jeu').classList.add('hidden');
+            document.getElementById('check-jeu').classList.add('hidden');
             document.getElementById('jeu-actions').classList.remove('hidden');
-            document.getElementById('d-score').innerText = "?";
-            deal('player'); deal('dealer'); deal('player');
+            
+            await dealTo('player', 0);
+            await dealTo('dealer');
+            await dealTo('player', 0);
             updateJeuUI();
         }
 
-        function deal(target) {
-            const c = deck.pop();
-            updateRunningCount(c.v);
-            if(target === 'player') playerHand.push(c); else dealerHand.push(c);
-            updateStatus();
-        }
-
-        function updateRunningCount(v) {
-            if(['2','3','4','5','6'].includes(v)) runningCount++;
-            if(['10','J','Q','K','A'].includes(v)) runningCount--;
-        }
-
-        function updateJeuUI() {
-            render('player-hand', playerHand);
-            render('dealer-hand', dealerHand, true);
-            document.getElementById('p-score').innerText = score(playerHand);
-        }
-
-        function render(id, hand, hide = false) {
-            const el = document.getElementById(id); el.innerHTML = '';
-            hand.forEach((c, i) => {
-                const d = document.createElement('div'); d.className = 'mini-card';
-                if(hide && i === 0 && !isGameOver) { d.innerText = '?'; d.style.background = '#333'; }
-                else { d.innerText = c.v; d.style.color = (c.s === '♥' || c.s === '♦') ? 'var(--red)' : 'black'; }
-                el.appendChild(d);
+        async function dealTo(target, idx = 0) {
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    const c = deck.pop();
+                    updateRC(c.v);
+                    if(target === 'player') playerHands[idx].cards.push(c);
+                    else dealerHand.push(c);
+                    updateJeuUI();
+                    resolve();
+                }, 400); // Temps d'animation pour compter
             });
         }
 
-        function score(hand) {
+        function updateJeuUI() {
+            const wrapper = document.getElementById('player-hands-wrapper');
+            wrapper.innerHTML = "";
+            playerHands.forEach((h, i) => {
+                const div = document.createElement('div');
+                div.className = `glass ${i === currentHandIdx && !isGameOver ? 'active-hand' : ''}`;
+                div.innerHTML = `<div style="font-size:0.7rem; color:#888;">MAIN ${i+1} <span class="score-badge">${calculate(h.cards)}</span></div>`;
+                const handDiv = document.createElement('div');
+                handDiv.className = "hand-container";
+                h.cards.forEach(c => {
+                    const card = document.createElement('div'); card.className = "mini-card";
+                    card.innerText = c.v; card.style.color = (c.s === '♥' || c.s === '♦') ? 'var(--red)' : 'black';
+                    handDiv.appendChild(card);
+                });
+                div.appendChild(handDiv);
+                wrapper.appendChild(div);
+            });
+
+            // Dealer
+            const dDiv = document.getElementById('dealer-hand'); dDiv.innerHTML = "";
+            dealerHand.forEach((c, i) => {
+                const card = document.createElement('div'); card.className = "mini-card";
+                if(i === 0 && !isGameOver) { card.innerText = "?"; card.style.background = "#333"; }
+                else { card.innerText = c.v; card.style.color = (c.s === '♥' || c.s === '♦') ? 'var(--red)' : 'black'; }
+                dDiv.appendChild(card);
+            });
+
+            // Boutons
+            const currentHand = playerHands[currentHandIdx];
+            document.getElementById('btn-split').disabled = (currentHand.cards.length !== 2 || currentHand.cards[0].v !== currentHand.cards[1].v);
+        }
+
+        function calculate(h) {
             let s = 0, a = 0;
-            for(let c of hand) { if(c.v === 'A') a++; else if(['J','Q','K','10'].includes(c.v)) s += 10; else s += parseInt(c.v); }
+            h.forEach(c => { if(c.v === 'A') a++; else if(['J','Q','K','10'].includes(c.v)) s += 10; else s += parseInt(c.v); });
             for(let i=0; i<a; i++) s += (s + 11 <= 21) ? 11 : 1;
             return s;
         }
 
-        function playerHit() { deal('player'); updateJeuUI(); if(score(playerHand) > 21) endJeu("BUST !"); }
-        function playerStand() {
-            isGameOver = true;
-            while(score(dealerHand) < 17) deal('dealer');
+        async function playerHit() {
+            await dealTo('player', currentHandIdx);
+            if(calculate(playerHands[currentHandIdx].cards) > 21) {
+                playerHands[currentHandIdx].status = 'bust';
+                moveToNextHand();
+            }
             updateJeuUI();
-            const ps = score(playerHand), ds = score(dealerHand);
-            if(ds > 21 || ps > ds) endJeu("GAGNÉ !"); else if(ps < ds) endJeu("PERDU !"); else endJeu("PUSH");
         }
 
-        function endJeu(m) {
-            isGameOver = true; updateJeuUI();
-            document.getElementById('d-score').innerText = score(dealerHand);
+        function playerStand() {
+            playerHands[currentHandIdx].status = 'stay';
+            moveToNextHand();
+        }
+
+        async function playerSplit() {
+            const h = playerHands[currentHandIdx];
+            const newCard = h.cards.pop();
+            const newHand = { cards: [newCard], status: 'active' };
+            playerHands.splice(currentHandIdx + 1, 0, newHand);
+            
+            // On complète la main actuelle puis la nouvelle
+            await dealTo('player', currentHandIdx);
+            updateJeuUI();
+        }
+
+        function moveToNextHand() {
+            if(currentHandIdx < playerHands.length - 1) {
+                currentHandIdx++;
+                updateJeuUI();
+            } else {
+                dealerPlay();
+            }
+        }
+
+        async function dealerPlay() {
+            isGameOver = true;
+            document.getElementById('d-score').innerText = calculate(dealerHand);
+            while(calculate(dealerHand) < 17) { await dealTo('dealer'); }
+            
+            let finalMsg = "FIN DE MANCHE";
+            document.getElementById('jeu-msg').innerText = finalMsg;
             document.getElementById('jeu-actions').classList.add('hidden');
             document.getElementById('next-hand-btn').classList.remove('hidden');
-            document.getElementById('check-btn-jeu').classList.remove('hidden');
-            const f = document.getElementById('jeu-feedback');
-            f.style.display = 'block'; f.innerText = m;
-            f.style.color = m.includes('GAGNÉ') ? 'var(--green)' : (m === 'PUSH' ? 'white' : 'var(--red)');
+            document.getElementById('check-jeu').classList.remove('hidden');
+            updateJeuUI();
         }
 
-        // --- ANALYSE ---
         function showAnalysis() {
-            if(autoInterval) pauseAuto();
             const dr = Math.max(0.5, deck.length / 52);
-            const tc = Math.floor(runningCount / dr);
             document.getElementById('res-rc').innerText = (runningCount > 0 ? "+" : "") + runningCount;
-            document.getElementById('res-tc').innerText = "TRUE COUNT : " + tc;
-            
-            let adv = "";
-            if(tc >= 3) adv = "🔥 Avantage Joueur Élevé. Misez fort et prenez l'assurance.";
-            else if(tc >= 1) adv = "✅ Avantage Joueur léger. Montez vos mises.";
-            else adv = "🧊 Avantage Maison. Restez à la mise minimum.";
-            
-            document.getElementById('res-advice').innerText = adv;
+            document.getElementById('res-tc').innerText = Math.floor(runningCount / dr);
             document.getElementById('modal-analyse').classList.remove('hidden');
         }
-
-        function closeAnalysis() { document.getElementById('modal-analyse').classList.add('hidden'); }
     </script>
 </body>
 </html>
