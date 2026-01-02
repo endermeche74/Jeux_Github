@@ -3,209 +3,215 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Mastery Pro - Blackjack & Counting</title>
+    <title>Mastery Pro - Hub</title>
     <style>
         :root {
-            --bg: #0d0d0d; --panel: #1a1a1a; --gold: #c5a059; --text: #e0e0e0;
-            --green: #27ae60; --red: #c0392b; --blue: #2980b9; --grey: #444;
+            --bg: #0a0a0a; --panel: #141414; --gold: #d4af37; --text: #ffffff;
+            --green: #2ecc71; --red: #e74c3c; --blue: #3498db; --grey: #444;
         }
-        body { font-family: 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); margin: 0; }
-        .screen { width: 100%; max-width: 500px; padding: 15px; margin: auto; box-sizing: border-box; display: none; min-height: 100vh; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; overflow-x: hidden; }
+        .screen { width: 100%; max-width: 500px; padding: 20px; margin: auto; box-sizing: border-box; display: none; min-height: 100vh; }
         .active { display: block; }
-        .hidden { display: none !important; }
 
-        /* NAV BAR */
-        .top-nav { display: flex; justify-content: space-between; padding: 10px; background: #000; border-bottom: 1px solid #333; }
-        .nav-btn { background: none; border: 1px solid var(--grey); color: var(--text); padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 0.9rem; display: flex; align-items: center; gap: 5px; }
-        .nav-btn:hover { border-color: var(--gold); }
+        /* --- UI COMPONENTS --- */
+        .glass { background: var(--panel); border: 1px solid #333; border-radius: 15px; padding: 15px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        
+        .nav-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .btn-nav { background: var(--grey); color: white; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 5px; font-size: 0.8rem; }
+        .btn-nav:hover { background: #555; }
+        
+        .btn-main { width: 100%; padding: 15px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 0.9rem; transition: 0.2s; }
+        .btn-gold { background: var(--gold); color: black; }
+        .btn-action { background: #222; color: white; border: 1px solid #444; flex: 1; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .btn-action:disabled { opacity: 0.1; cursor: not-allowed; }
 
-        /* UI COMPONENTS */
-        .glass { background: var(--panel); border: 1px solid #333; border-radius: 12px; padding: 15px; margin-bottom: 15px; }
-        .btn { padding: 12px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 0.8rem; transition: 0.2s; }
-        .btn-gold { background: var(--gold); color: black; width: 100%; margin-top: 10px; }
-        .btn-action { background: #333; color: white; flex: 1; margin: 3px; border: 1px solid #555; }
-        .btn-action:disabled { opacity: 0.2; pointer-events: none; }
-
-        /* CARDS */
-        .hand-container { display: flex; justify-content: center; gap: 5px; min-height: 90px; margin: 10px 0; flex-wrap: wrap; }
-        .mini-card { 
-            width: 55px; height: 80px; background: white; border-radius: 6px; color: black; 
-            display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.1rem;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.5); border: 1px solid #ccc;
+        /* --- CARDS --- */
+        .hand-container { display: flex; justify-content: center; gap: 8px; min-height: 100px; margin: 15px 0; flex-wrap: wrap; }
+        .card { 
+            width: 60px; height: 90px; background: white; border-radius: 8px; color: black; 
+            display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.4); animation: deal 0.3s ease-out;
         }
-        .active-hand { border: 2px solid var(--gold); background: rgba(197, 160, 89, 0.1); border-radius: 8px; }
+        @keyframes deal { from { transform: translateY(-30px) rotate(10deg); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .card-hidden { background: #333; border: 2px solid #555; color: transparent; }
 
-        /* MODALS */
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 1000; display: none; flex-direction: column; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; }
+        /* --- MODALS --- */
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 1000; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
+        .rules-content { text-align: left; font-size: 0.9rem; color: #ccc; line-height: 1.5; max-height: 70vh; overflow-y: auto; }
+
+        /* --- PAPAYOO TABLE --- */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #333; padding: 8px; text-align: center; }
+        th { color: var(--blue); background: #111; }
     </style>
 </head>
 <body>
 
-    <div id="nav-bar" class="top-nav hidden">
-        <button class="nav-btn" onclick="exitToHome()">🏠 <span>Home</span></button>
-        <button class="nav-btn" onclick="showRules()">ℹ️ <span>Règles</span></button>
-        <button class="nav-btn" style="color:var(--red)" onclick="resetCurrentGame()">🗑️ <span>Reset</span></button>
-    </div>
-
     <div id="scr-home" class="screen active">
-        <h1 style="text-align: center; color: var(--gold); letter-spacing: 6px; margin: 60px 0 30px;">MASTERY PRO</h1>
-        <p style="text-align:center; color: var(--grey); margin-bottom: 40px;">ENTRAÎNEMENT ÉLITE BLACKJACK</p>
+        <h1 style="text-align: center; color: var(--gold); letter-spacing: 6px; margin: 50px 0;">MASTERY PRO</h1>
         
-        <div class="glass" onclick="goToGame('bj')" style="cursor:pointer; border-left: 5px solid var(--gold);">
-            <h3 style="margin:0;">🃏 Blackjack Réel</h3>
-            <p style="font-size:0.8rem; color:var(--grey);">Règles casino, multi-split et aide stratégique.</p>
+        <div class="glass" onclick="goTo('scr-bj')" style="cursor:pointer; border-left: 5px solid var(--gold);">
+            <h2 style="margin:0;">🃏 Blackjack Pro</h2>
+            <p style="font-size:0.85rem; color:#888;">Simulateur réel : Split, Double, Assurance.</p>
         </div>
 
-        <div class="glass" onclick="goToGame('count')" style="cursor:pointer; border-left: 5px solid var(--green);">
-            <h3 style="margin:0;">⏱️ Comptage Vitesse</h3>
-            <p style="font-size:0.8rem; color:var(--grey);">Défilement auto avec arrêts de test aléatoires.</p>
+        <div class="glass" onclick="goTo('scr-count')" style="cursor:pointer; border-left: 5px solid var(--green);">
+            <h2 style="margin:0;">⏱️ Entraînement Vitesse</h2>
+            <p style="font-size:0.85rem; color:#888;">Compteur Hi-Lo avec arrêt aléatoire.</p>
+        </div>
+
+        <div class="glass" onclick="goTo('scr-papayoo')" style="cursor:pointer; border-left: 5px solid var(--blue);">
+            <h2 style="margin:0;">🎭 Papayoo</h2>
+            <p style="font-size:0.85rem; color:#888;">Compteur de points classique.</p>
         </div>
     </div>
 
     <div id="scr-bj" class="screen">
-        <div style="text-align:center; font-size:0.7rem; color:var(--grey);">DEALER <span id="bj-d-score" style="color:var(--gold)">--</span></div>
-        <div id="bj-d-hand" class="hand-container"></div>
-
-        <div id="hint-area" style="text-align:center; color:var(--gold); font-size:0.8rem; margin:10px; font-weight:bold; min-height:1.2em;"></div>
-
-        <div id="bj-p-wrapper"></div>
-
-        <div id="bj-actions" class="hidden" style="display:flex; flex-wrap:wrap;">
-            <button class="btn btn-action" id="btn-hit" onclick="hit()">Tirer</button>
-            <button class="btn btn-action" id="btn-stand" onclick="stand()">Rester</button>
-            <button class="btn btn-action" id="btn-double" onclick="double()">Doubler</button>
-            <button class="btn btn-action" id="btn-split" onclick="split()">Split</button>
+        <div class="nav-bar">
+            <button class="btn-nav" onclick="goHome()">🏠 ACCUEIL</button>
+            <button class="btn-nav" onclick="showRules('bj')">ℹ️ RÈGLES</button>
+            <button class="btn-nav" style="color:var(--red)" onclick="startBlackjack()">🔄 RESET</button>
         </div>
 
-        <button id="bj-next-btn" class="btn btn-gold hidden" onclick="bjNewHand()">Main Suivante</button>
-        <button class="btn btn-action" style="width:100%; margin-top:20px;" onclick="showAnalyse()">Analyse du compte</button>
+        <div id="bj-game-zone">
+            <div style="text-align:center; font-size:0.8rem; color:#888;">DEALER <span id="bj-d-val" style="color:var(--gold)">--</span></div>
+            <div id="bj-d-hand" class="hand-container"></div>
+
+            <div id="bj-advice" style="text-align:center; color:var(--gold); font-size:0.8rem; height:20px; margin-bottom:10px;"></div>
+
+            <div id="bj-p-hands"></div>
+
+            <div id="bj-actions" style="display:flex; gap:5px; margin-top:20px;">
+                <button class="btn-action" id="btn-hit" onclick="hit()">TIRER</button>
+                <button class="btn-action" id="btn-stand" onclick="stand()">RESTER</button>
+                <button class="btn-action" id="btn-double" onclick="double()">DOUBLER</button>
+                <button class="btn-action" id="btn-split" onclick="split()">SPLIT</button>
+            </div>
+            
+            <button id="btn-next" class="btn-main btn-gold hidden" onclick="bjNewHand()" style="margin-top:15px;">MAIN SUIVANTE</button>
+            <button class="btn-main" style="background:none; color:#555; margin-top:10px;" onclick="checkCount()">VÉRIFIER LE COMPTE</button>
+        </div>
     </div>
 
     <div id="scr-count" class="screen">
-        <div class="glass" id="count-setup">
-            <h2 style="color:var(--green); margin-top:0;">Paramètres</h2>
-            <label style="font-size:0.8rem;">VITESSE (SEC/CARTE)</label>
-            <input type="number" id="count-spd" value="1.5" step="0.1" style="width:100%; padding:10px; margin:10px 0; background:#222; color:white; border:1px solid #444; border-radius:5px;">
-            <div style="display:flex; justify-content: space-between; align-items:center; margin:15px 0;">
-                <span style="font-size:0.9rem;">Arrêt Aléatoire (Test)</span>
-                <input type="checkbox" id="count-rng" style="width:20px; height:20px;">
-            </div>
-            <button class="btn btn-gold" style="background:var(--green); color:white;" onclick="runCounting()">Démarrer l'entraînement</button>
+        <div class="nav-bar">
+            <button class="btn-nav" onclick="goHome()">🏠 ACCUEIL</button>
+            <button class="btn-nav" onclick="showRules('speed')">ℹ️ RÈGLES</button>
         </div>
 
-        <div id="count-run" class="hidden" style="text-align:center;">
-            <div id="count-card-display" style="height:250px; width:170px; background:white; border-radius:12px; margin:20px auto; display:flex; align-items:center; justify-content:center; font-size:5rem; color:black; font-weight:bold; box-shadow:0 0 30px rgba(39, 174, 96, 0.3);">?</div>
-            <div id="count-msg" style="color:var(--gold); font-weight:bold; margin-bottom:15px;"></div>
-            <button id="count-check-btn" class="btn btn-action" style="width:100%;" onclick="showAnalyse()">VÉRIFIER LE COMPTE</button>
-            <button id="count-resume-btn" class="btn btn-gold hidden" onclick="resumeCounting()">Reprendre</button>
+        <div class="glass" id="speed-setup">
+            <label style="font-size:0.8rem;">VITESSE (SEC/CARTE)</label>
+            <input type="number" id="speed-val" value="1.5" step="0.1" style="width:100%; padding:12px; background:#222; color:white; border:1px solid #444; border-radius:8px; margin:10px 0;">
+            <div style="display:flex; justify-content: space-between; align-items:center; margin-top:10px;">
+                <span>Arrêt Aléatoire 🎲</span>
+                <input type="checkbox" id="speed-random" checked>
+            </div>
+            <button class="btn-main btn-gold" style="margin-top:20px;" onclick="runSpeed()">DÉMARRER</button>
+        </div>
+
+        <div id="speed-run" class="hidden" style="text-align:center;">
+            <div id="speed-card" style="height:250px; width:170px; background:white; border-radius:15px; margin:30px auto; display:flex; align-items:center; justify-content:center; font-size:5rem; color:black; font-weight:bold; box-shadow:0 0 30px rgba(46,204,113,0.3);">?</div>
+            <div id="speed-hint" style="color:var(--green); font-weight:bold; margin-bottom:15px; height:20px;"></div>
+            <button class="btn-main btn-gold" onclick="checkCount()">VÉRIFIER LE COMPTE</button>
+        </div>
+    </div>
+
+    <div id="scr-papayoo" class="screen">
+        <div class="nav-bar">
+            <button class="btn-nav" onclick="goHome()">🏠 ACCUEIL</button>
+        </div>
+        <div class="glass">
+            <h3 style="color:var(--blue); margin:0;">🎭 Papayoo Tracker</h3>
+            <table id="p-table">
+                <thead><tr id="p-head"><th>Rd</th></tr></thead>
+                <tbody id="p-body"></tbody>
+                <tfoot><tr id="p-foot"><td>+</td></tr></tfoot>
+            </table>
+            <button class="btn-main btn-gold" style="background:var(--blue); color:white; margin-top:10px;" onclick="alert('Ajoutez vos joueurs dans le code ou via un menu dédié')">Actions Papayoo</button>
         </div>
     </div>
 
     <div id="modal-rules" class="modal">
-        <h2 style="color:var(--gold);">RÈGLES & INFOS</h2>
-        <div class="glass" style="font-size:0.85rem; line-height:1.5; max-height:70vh; overflow-y:auto;">
-            <p><strong>Blackjack :</strong> Le croupier s'arrête à 17. Le Blackjack (As + 10/Figure) paye 3 pour 2. Vous pouvez split les paires et doubler sur vos deux premières cartes.</p>
-            <p><strong>Hi-Lo Counting :</strong><br>
-            • 2 à 6 = +1<br>
-            • 7 à 9 = 0<br>
-            • 10, Valet, Dame, Roi, As = -1</p>
-            <p><strong>True Count :</strong> Compte Réel = Running Count / Nombre de decks restants.</p>
-        </div>
-        <button class="btn btn-gold" onclick="closeRules()">Fermer</button>
+        <h2 id="rules-title" style="color:var(--gold);">RÈGLES</h2>
+        <div id="rules-text" class="rules-content glass"></div>
+        <button class="btn-main btn-gold" onclick="closeModal('modal-rules')">COMPRIS</button>
     </div>
 
-    <div id="modal-analyse" class="modal">
-        <h2 style="color:var(--gold);">ÉTAT DU SABOT</h2>
-        <div class="glass" style="text-align:center; width:85%;">
-            <p style="color:var(--grey); margin-bottom:5px;">RUNNING COUNT</p>
+    <div id="modal-ana" class="modal">
+        <h2 style="color:var(--gold);">COMPTE HI-LO</h2>
+        <div class="glass" style="text-align:center; width:80%;">
+            <p>RUNNING COUNT</p>
             <div id="ana-rc" style="font-size:4rem; font-weight:bold; color:var(--gold);">0</div>
-            <p style="color:var(--grey); margin-top:20px;">TRUE COUNT</p>
-            <div id="ana-tc" style="font-size:1.8rem; font-weight:bold;">0</div>
+            <p>TRUE COUNT (SABOT)</p>
+            <div id="ana-tc" style="font-size:1.5rem; color:#888;">0</div>
         </div>
-        <button class="btn btn-gold" onclick="closeAnalyse()">Retourner au jeu</button>
+        <button class="btn-main btn-gold" style="width:80%;" onclick="closeModal('modal-ana')">RETOUR AU JEU</button>
     </div>
 
     <script>
+        // --- LOGIQUE CORE ---
         let deck = [];
         let rc = 0;
-        let countInterval = null;
-        let pHands = [];
+        let timer = null;
+        let pHand = []; // Tableau de mains pour le split
         let dHand = [];
-        let currIdx = 0;
-        let isGameOver = false;
-        let currentMode = null;
+        let curIdx = 0;
+        let over = false;
 
-        // --- NAVIGATION ---
-        function goToGame(mode) {
-            currentMode = mode;
-            document.getElementById('scr-home').classList.remove('active');
-            document.getElementById('nav-bar').classList.remove('hidden');
-            if(mode === 'bj') {
-                document.getElementById('scr-bj').classList.add('active');
-                initDeck(); rc = 0; bjNewHand();
-            } else {
-                document.getElementById('scr-count').classList.add('active');
-                document.getElementById('count-setup').classList.remove('hidden');
-                document.getElementById('count-run').classList.add('hidden');
-            }
-        }
+        const goTo = (id) => {
+            stopAll();
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            if(id === 'scr-bj') startBlackjack();
+        };
 
-        function exitToHome() {
-            clearInterval(countInterval);
-            document.querySelectorAll('.screen, .modal').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
-            document.getElementById('nav-bar').classList.add('hidden');
-            document.getElementById('scr-home').classList.add('active');
-            currentMode = null;
-        }
+        const goHome = () => goTo('scr-home');
 
-        function resetCurrentGame() {
-            clearInterval(countInterval);
-            if(currentMode === 'bj') { initDeck(); rc = 0; bjNewHand(); }
-            else { goToGame('count'); }
-        }
+        const stopAll = () => {
+            clearInterval(timer);
+            timer = null;
+            document.getElementById('modal-ana').style.display = 'none';
+            document.getElementById('modal-rules').style.display = 'none';
+        };
 
-        function showRules() { document.getElementById('modal-rules').style.display = 'flex'; }
-        function closeRules() { document.getElementById('modal-rules').style.display = 'none'; }
-
-        // --- MOTEUR DE CARTES ---
-        function initDeck(n=6) {
+        const initDeck = () => {
             const v = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
             const s = ['♠','♥','♦','♣']; deck = [];
-            for(let i=0; i<n; i++) for(let suit of s) for(let val of v) deck.push({v:val, s:suit});
+            for(let i=0; i<6; i++) for(let suit of s) for(let val of v) deck.push({v:val, s:suit});
             deck.sort(() => Math.random() - 0.5);
-        }
+            rc = 0;
+        };
 
-        function updateRC(v) {
+        const updateRC = (v) => {
             if(['2','3','4','5','6'].includes(v)) rc++;
             if(['10','J','Q','K','A'].includes(v)) rc--;
+        };
+
+        // --- BLACKJACK ---
+        function startBlackjack() {
+            initDeck();
+            bjNewHand();
         }
 
-        // --- BLACKJACK LOGIC ---
         async function bjNewHand() {
-            if(deck.length < 15) initDeck();
-            pHands = [{ cards: [], status: 'play' }]; dHand = [];
-            currIdx = 0; isGameOver = false;
+            if(deck.length < 20) initDeck();
+            pHand = [{ cards: [], status: 'play' }];
+            dHand = []; curIdx = 0; over = false;
+            document.getElementById('btn-next').classList.add('hidden');
+            document.getElementById('bj-actions').classList.remove('hidden');
+            document.getElementById('bj-d-val').innerText = "?";
             
-            document.getElementById('bj-next-btn').classList.add('hidden');
-            document.getElementById('bj-actions').classList.add('hidden');
-            document.getElementById('bj-d-score').innerText = "--";
-            document.getElementById('hint-area').innerText = "Distribution...";
-
-            // Distribution Casino : P1 -> D1 -> P2 -> D2
             await dealTo('p', 0);
-            await dealTo('d');
+            await dealTo('d'); // Visible
             await dealTo('p', 0);
-            await dealTo('d');
-
-            const pVal = calc(pHands[0].cards);
-            if(pVal === 21) {
-                document.getElementById('hint-area').innerText = "🚀 BLACKJACK !";
+            await dealTo('d'); // Caché
+            
+            if(calc(pHand[0].cards) === 21) {
+                over = true;
+                document.getElementById('bj-advice').innerText = "BLACKJACK NATUREL !";
                 finishGame();
-            } else {
-                document.getElementById('bj-actions').classList.remove('hidden');
-                updateBJUI();
             }
+            updateBJUI();
         }
 
         async function dealTo(target, idx=0) {
@@ -213,7 +219,7 @@
                 setTimeout(() => {
                     const c = deck.pop();
                     updateRC(c.v);
-                    if(target === 'p') pHands[idx].cards.push(c); else dHand.push(c);
+                    if(target === 'p') pHand[idx].cards.push(c); else dHand.push(c);
                     updateBJUI();
                     res();
                 }, 400);
@@ -221,125 +227,110 @@
         }
 
         function updateBJUI() {
-            // Dealer
             const dDiv = document.getElementById('bj-d-hand'); dDiv.innerHTML = "";
             dHand.forEach((c, i) => {
-                const card = document.createElement('div'); card.className = "mini-card";
-                if(i === 1 && !isGameOver) { card.innerText = "?"; card.style.background = "#333"; }
-                else { card.innerText = c.v; card.style.color = (c.s === '♥' || c.s === '♦') ? 'var(--red)' : 'black'; }
+                const card = document.createElement('div');
+                card.className = (i === 1 && !over) ? "card card-hidden" : "card";
+                card.innerText = c.v;
+                if(c.s === '♥' || c.s === '♦') card.style.color = "var(--red)";
                 dDiv.appendChild(card);
             });
 
-            // Players
-            const wrapper = document.getElementById('bj-p-wrapper'); wrapper.innerHTML = "";
-            pHands.forEach((h, i) => {
-                const container = document.createElement('div');
-                container.className = `glass ${i === currIdx && !isGameOver ? 'active-hand' : ''}`;
-                container.innerHTML = `<div style="font-size:0.6rem; color:var(--grey)">MAIN ${i+1} • SCORE: ${calc(h.cards)}</div><div class="hand-container" id="p-h-${i}"></div>`;
-                wrapper.appendChild(container);
+            const pDiv = document.getElementById('bj-p-hands'); pDiv.innerHTML = "";
+            pHand.forEach((h, i) => {
+                const wrap = document.createElement('div');
+                wrap.className = `glass ${i === curIdx && !over ? 'active-hand' : ''}`;
+                wrap.style.border = (i === curIdx && !over) ? "1px solid var(--gold)" : "1px solid #333";
+                wrap.innerHTML = `<div style="font-size:0.7rem;">MAIN ${i+1} (${calc(h.cards)})</div><div class="hand-container" id="p-cards-${i}"></div>`;
+                pDiv.appendChild(wrap);
                 h.cards.forEach(c => {
-                    const card = document.createElement('div'); card.className = "mini-card";
-                    card.innerText = c.v; card.style.color = (c.s === '♥' || c.s === '♦') ? 'var(--red)' : 'black';
-                    document.getElementById(`p-h-${i}`).appendChild(card);
+                    const card = document.createElement('div'); card.className = "card"; card.innerText = c.v;
+                    if(c.s === '♥' || c.s === '♦') card.style.color = "var(--red)";
+                    document.getElementById(`p-cards-${i}`).appendChild(card);
                 });
             });
 
-            if(!isGameOver) {
-                const h = pHands[currIdx];
-                document.getElementById('btn-split').style.display = (h.cards.length === 2 && h.cards[0].v === h.cards[1].v) ? "block" : "none";
-                document.getElementById('btn-double').style.display = (h.cards.length === 2) ? "block" : "none";
-                provideHint();
-            }
+            // Logic des boutons
+            const cur = pHand[curIdx];
+            document.getElementById('btn-split').style.display = (cur.cards.length === 2 && cur.cards[0].v === cur.cards[1].v) ? "block" : "none";
+            document.getElementById('btn-double').style.display = (cur.cards.length === 2) ? "block" : "none";
         }
 
-        function provideHint() {
-            const pVal = calc(pHands[currIdx].cards);
-            const dVisible = valToNum(dHand[0].v);
-            let h = "Conseil : ";
-            if(pVal >= 17) h += "RESTEZ (Stand)";
-            else if(pVal <= 11) h += "TIREZ (Hit)";
-            else if(pVal >= 13 && dVisible <= 6) h += "RESTEZ (Stand)";
-            else h += "TIREZ (Hit)";
-            document.getElementById('hint-area').innerText = h;
-        }
-
-        async function hit() { await dealTo('p', currIdx); if(calc(pHands[currIdx].cards) > 21) nextHand(); }
-        async function double() { await dealTo('p', currIdx); nextHand(); }
-        async function split() {
-            const h = pHands[currIdx]; const c2 = h.cards.pop();
-            pHands.splice(currIdx+1, 0, {cards:[c2], status:'play'});
-            await dealTo('p', currIdx); updateBJUI();
-        }
-        function stand() { nextHand(); }
-        function nextHand() { if(currIdx < pHands.length - 1) { currIdx++; updateBJUI(); } else { finishGame(); } }
-
-        async function finishGame() {
-            isGameOver = true;
-            document.getElementById('bj-actions').classList.add('hidden');
-            while(calc(dHand) < 17) await dealTo('d');
-            document.getElementById('bj-d-score').innerText = calc(dHand);
-            document.getElementById('bj-next-btn').classList.remove('hidden');
-            document.getElementById('hint-area').innerText = "FIN DE LA MANCHE";
-            updateBJUI();
-        }
-
-        // --- COMPTAGE VITESSE ---
-        function runCounting() {
-            initDeck(6); rc = 0;
-            document.getElementById('count-setup').classList.add('hidden');
-            document.getElementById('count-run').classList.remove('hidden');
-            document.getElementById('count-resume-btn').classList.add('hidden');
-            document.getElementById('count-msg').innerText = "";
-            resumeCounting();
-        }
-
-        function resumeCounting() {
-            const spd = parseFloat(document.getElementById('count-spd').value) * 1000;
-            document.getElementById('count-resume-btn').classList.add('hidden');
-            document.getElementById('count-check-btn').classList.remove('hidden');
-            
-            countInterval = setInterval(() => {
-                if(deck.length === 0) { clearInterval(countInterval); return alert("Fin du sabot !"); }
-                const c = deck.pop();
-                const el = document.getElementById('count-card-display');
-                el.innerText = c.v; el.style.color = (c.s === '♥' || c.s === '♦') ? 'var(--red)' : 'black';
-                updateRC(c.v);
-
-                if(document.getElementById('count-rng').checked && Math.random() < 0.1) {
-                    clearInterval(countInterval);
-                    document.getElementById('count-card-display').innerText = "???";
-                    document.getElementById('count-msg').innerText = "TEST : Quel est le compte ?";
-                    document.getElementById('count-resume-btn').classList.remove('hidden');
-                }
-            }, spd);
-        }
-
-        // --- ANALYSE ---
-        function showAnalyse() {
-            if(countInterval) clearInterval(countInterval);
-            const dr = Math.max(0.5, deck.length / 52);
-            document.getElementById('ana-rc').innerText = (rc > 0 ? "+" : "") + rc;
-            document.getElementById('ana-tc').innerText = (rc / dr).toFixed(1);
-            document.getElementById('modal-analyse').style.display = 'flex';
-        }
-
-        function closeAnalyse() {
-            document.getElementById('modal-analyse').style.display = 'none';
-            if(currentMode === 'count' && !document.getElementById('count-rng').checked) {
-                resumeCounting();
-            } else if (currentMode === 'count') {
-                document.getElementById('count-resume-btn').classList.remove('hidden');
-            }
-        }
-
-        // HELPERS
         function calc(h) {
             let s = 0, a = 0;
             h.forEach(c => { if(c.v === 'A') a++; else if(['J','Q','K','10'].includes(c.v)) s += 10; else s += parseInt(c.v); });
             for(let i=0; i<a; i++) s += (s + 11 <= 21) ? 11 : 1;
             return s;
         }
-        function valToNum(v) { if(['J','Q','K','10'].includes(v)) return 10; if(v === 'A') return 11; return parseInt(v); }
+
+        async function hit() { await dealTo('p', curIdx); if(calc(pHand[curIdx].cards) >= 21) nextHand(); }
+        async function double() { await dealTo('p', curIdx); nextHand(); }
+        async function split() {
+            const c = pHand[curIdx].cards.pop();
+            pHand.splice(curIdx + 1, 0, { cards: [c], status: 'play' });
+            await dealTo('p', curIdx);
+            updateBJUI();
+        }
+        function stand() { nextHand(); }
+        function nextHand() { if(curIdx < pHand.length - 1) { curIdx++; updateBJUI(); } else { finishGame(); } }
+
+        async function finishGame() {
+            over = true;
+            while(calc(dHand) < 17) await dealTo('d');
+            document.getElementById('bj-d-val').innerText = calc(dHand);
+            document.getElementById('bj-actions').classList.add('hidden');
+            document.getElementById('btn-next').classList.remove('hidden');
+            updateBJUI();
+        }
+
+        // --- VITESSE ---
+        function runSpeed() {
+            initDeck();
+            document.getElementById('speed-setup').classList.add('hidden');
+            document.getElementById('speed-run').classList.remove('hidden');
+            const spd = parseFloat(document.getElementById('speed-val').value) * 1000;
+            
+            timer = setInterval(() => {
+                const c = deck.pop();
+                updateRC(c.v);
+                const el = document.getElementById('speed-card');
+                el.innerText = c.v;
+                el.style.color = (c.s === '♥' || c.s === '♦') ? 'var(--red)' : 'black';
+                
+                // Hint
+                let hint = "0";
+                if(['2','3','4','5','6'].includes(c.v)) hint = "+1";
+                if(['10','J','Q','K','A'].includes(c.v)) hint = "-1";
+                document.getElementById('speed-hint').innerText = hint;
+
+                if(document.getElementById('speed-random').checked && Math.random() < 0.1) {
+                    clearInterval(timer);
+                    document.getElementById('speed-hint').innerText = "ARRÊT ! VÉRIFIE LE COMPTE";
+                }
+            }, spd);
+        }
+
+        // --- UTILS ---
+        function checkCount() {
+            clearInterval(timer); // Arrête le défilement
+            const dr = Math.max(0.5, deck.length / 52);
+            document.getElementById('ana-rc').innerText = (rc > 0 ? "+" : "") + rc;
+            document.getElementById('ana-tc').innerText = Math.floor(rc / dr);
+            document.getElementById('modal-ana').style.display = 'flex';
+        }
+
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        function showRules(type) {
+            const m = document.getElementById('modal-rules');
+            const t = document.getElementById('rules-text');
+            if(type === 'bj') {
+                t.innerHTML = "• Le croupier s'arrête à 17.<br>• Blackjack paye 3 pour 2.<br>• Double possible sur les 2 premières cartes.<br>• Split possible si paire.<br>• Hi-Lo : 2-6 (+1), 7-9 (0), 10-A (-1).";
+            } else {
+                t.innerHTML = "• Les cartes défilent automatiquement.<br>• Comptez mentalement en utilisant le système Hi-Lo.<br>• Si l'arrêt aléatoire est activé, le jeu se fige pour vous tester.<br>• Appuyez sur Vérifier pour comparer votre score.";
+            }
+            m.style.display = 'flex';
+        }
     </script>
 </body>
 </html>
