@@ -3,325 +3,347 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Pro GameCenter - Multi-Jeux</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <title>Blackjack Pro & Papayoo Hub</title>
     <style>
         :root {
-            --bg: #121212;
-            --card-red: #e74c3c;
-            --card-black: #2c3e50;
-            --gold: #f1c40f;
-            --text: #ffffff;
+            --bg-dark: #0f0f0f;
+            --card-bg: #1a1a1a;
+            --gold: #d4af37;
+            --gold-bright: #f1c40f;
             --accent: #3498db;
-            --success: #2ecc71;
+            --text-main: #e0e0e0;
+            --success: #27ae60;
+            --danger: #c0392b;
         }
 
         body {
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0; padding: 10px;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            margin: 0; padding: 0;
             display: flex; flex-direction: column; align-items: center;
             min-height: 100vh;
         }
 
-        .screen { width: 100%; max-width: 600px; }
+        /* --- NAVIGATION --- */
+        header {
+            width: 100%; max-width: 600px;
+            padding: 15px; display: flex; justify-content: space-between;
+            box-sizing: border-box; position: sticky; top: 0; z-index: 100;
+            background: rgba(15,15,15,0.9); backdrop-filter: blur(5px);
+        }
+
+        .nav-btn {
+            background: transparent; border: 1px solid var(--gold); color: var(--gold);
+            padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: bold;
+            transition: 0.3s;
+        }
+        .nav-btn:hover { background: var(--gold); color: black; }
+
+        /* --- SCREENS --- */
+        .screen { width: 100%; max-width: 500px; padding: 20px; box-sizing: border-box; animation: fadeIn 0.4s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .hidden { display: none !important; }
 
-        /* --- UI --- */
-        .nav-btn {
-            background: rgba(255,255,255,0.1); border: 1px solid white; color: white;
-            padding: 10px 15px; cursor: pointer; border-radius: 8px; font-weight: bold;
+        /* --- CARDS & PANELS --- */
+        .glass-panel {
+            background: var(--card-bg); border: 1px solid #333;
+            border-radius: 16px; padding: 20px; margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
+
         .btn-main {
-            background: var(--success); color: white; border: none; padding: 18px;
-            width: 100%; border-radius: 12px; font-size: 1.1rem; font-weight: bold;
-            cursor: pointer; margin-top: 10px;
+            background: linear-gradient(135deg, var(--gold), #aa8a2e);
+            color: black; border: none; padding: 18px; width: 100%;
+            border-radius: 12px; font-size: 1.1rem; font-weight: 800;
+            cursor: pointer; margin-top: 10px; text-transform: uppercase;
         }
 
-        /* --- BLACKJACK --- */
+        /* --- BLACKJACK UI --- */
         #bj-card-display {
-            height: 250px; width: 180px; background: white; border-radius: 15px;
-            margin: 20px auto; display: flex; align-items: center; justify-content: center;
-            font-size: 4.5rem; font-weight: bold; position: relative;
-            box-shadow: 0 0 30px rgba(0,0,0,0.5); color: black;
+            height: 280px; width: 200px; background: white; border-radius: 15px;
+            margin: 30px auto; display: flex; align-items: center; justify-content: center;
+            font-size: 5rem; font-weight: bold; position: relative; color: black;
+            box-shadow: 0 0 40px rgba(212, 175, 55, 0.2);
         }
-        .card-suit { position: absolute; font-size: 1.8rem; }
-        .top-left { top: 10px; left: 10px; }
-        .bottom-right { bottom: 10px; right: 10px; }
-        
-        #bj-info-panel {
-            background: #1e1e1e; padding: 20px; border-radius: 15px;
-            border: 2px solid var(--gold); margin-top: 20px;
-        }
+        .card-suit { position: absolute; font-size: 2rem; }
+        .top-left { top: 10px; left: 15px; }
+        .bottom-right { bottom: 10px; right: 15px; }
 
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0; }
-        .stat-item { background: #2a2a2a; padding: 10px; border-radius: 8px; text-align: center; }
-        .stat-val { display: block; font-size: 1.4rem; font-weight: bold; color: var(--gold); }
-        .pro-tip-box { background: rgba(52,152,219,0.1); border-left: 4px solid var(--accent); padding: 10px; margin: 10px 0; font-size: 0.9rem; }
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0; }
+        .stat-box { background: #252525; padding: 15px; border-radius: 12px; text-align: center; border: 1px solid #444; }
+        .stat-label { font-size: 0.8rem; color: #888; text-transform: uppercase; display: block; }
+        .stat-val { font-size: 1.8rem; font-weight: bold; color: var(--gold-bright); }
 
-        /* Switch */
-        .switch { position: relative; display: inline-block; width: 50px; height: 24px; }
+        /* --- GUIDE PAGE --- */
+        .guide-section { margin-bottom: 25px; line-height: 1.5; }
+        .guide-section h3 { color: var(--gold); border-bottom: 1px solid var(--gold); padding-bottom: 5px; }
+        .hilo-table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+        .hilo-table td { padding: 10px; border: 1px solid #444; text-align: center; }
+
+        /* --- SWITCH --- */
+        .switch-container { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; }
+        .switch { position: relative; width: 50px; height: 26px; }
         .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #444; transition: .4s; border-radius: 24px; }
-        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider { background-color: var(--success); }
-        input:checked + .slider:before { transform: translateX(26px); }
-
-        /* Papayoo Table */
-        .table-scroll { width: 100%; overflow-x: auto; background: rgba(0,0,0,0.3); border-radius: 8px; margin-top: 15px; }
-        table { width: 100%; border-collapse: collapse; min-width: 400px; }
-        th, td { border: 1px solid rgba(255,255,255,0.1); padding: 10px; text-align: center; }
+        .slider { position: absolute; cursor: pointer; top:0; left:0; right:0; bottom:0; background:#444; border-radius:34px; transition:0.4s; }
+        .slider:before { position:absolute; content:""; height:18px; width:18px; left:4px; bottom:4px; background:white; border-radius:50%; transition:0.4s; }
+        input:checked + .slider { background: var(--success); }
+        input:checked + .slider:before { transform: translateX(24px); }
     </style>
 </head>
 <body>
 
     <header id="main-header" class="hidden">
-        <button class="nav-btn" onclick="goHome()">🏠 Accueil</button>
-        <button id="rule-btn" class="nav-btn">📜 Guide Pro</button>
+        <button class="nav-btn" onclick="goHome()">🏠 MENU</button>
+        <button class="nav-btn" onclick="showScreen('guide-pro')">🎓 GUIDE PRO</button>
     </header>
 
     <div id="home-screen" class="screen">
-        <h1 style="text-align: center; margin-top: 40px;">GameCenter Pro</h1>
-        <div style="background: rgba(255,255,255,0.05); padding: 25px; border-radius: 15px; margin-bottom: 20px; cursor: pointer; border: 1px solid #333;" onclick="showScreen('papayoo-setup')">
-            <h2>🎭 Papayoo</h2>
-            <p>Compteur de points & Tirage couleur</p>
+        <h1 style="text-align: center; font-size: 2.5rem; margin-bottom: 40px; color: var(--gold);">CASINO<br><span style="color:white; font-size: 1.2rem; letter-spacing: 5px;">STRATÉGIE</span></h1>
+        
+        <div class="glass-panel" onclick="showScreen('bj-setup')" style="cursor: pointer; border-left: 5px solid var(--gold);">
+            <h2 style="margin-top:0;">🃏 Blackjack Pro</h2>
+            <p style="color: #888;">Entraînement au comptage Hi-Lo avec True Count et arrêts aléatoires.</p>
         </div>
-        <div style="background: rgba(255,255,255,0.05); padding: 25px; border-radius: 15px; cursor: pointer; border: 1px solid var(--gold);" onclick="showScreen('bj-setup')">
-            <h2>🃏 Blackjack Card Counting</h2>
-            <p>Entraînement Hi-Lo & Arrêts Aléatoires</p>
+
+        <div class="glass-panel" onclick="showScreen('papayoo-setup')" style="cursor: pointer;">
+            <h2 style="margin-top:0;">🎭 Papayoo</h2>
+            <p style="color: #888;">Calculateur de score simplifié pour vos soirées entre amis.</p>
         </div>
     </div>
 
-    <div id="papayoo-setup" class="screen hidden">
-        <h1>Papayoo Setup</h1>
-        <div id="player-inputs">
-            <input type="text" placeholder="Joueur 1" class="player-name" style="width:100%; padding:12px; margin:5px 0;">
-            <input type="text" placeholder="Joueur 2" class="player-name" style="width:100%; padding:12px; margin:5px 0;">
-            <input type="text" placeholder="Joueur 3" class="player-name" style="width:100%; padding:12px; margin:5px 0;">
-        </div>
-        <button class="nav-btn" onclick="addPlayerField()" style="width:100%; margin-top:10px;">+ Ajouter Joueur</button>
-        <button class="btn-main" onclick="startPapayoo()">Commencer</button>
-    </div>
-
-    <div id="papayoo-game" class="screen hidden">
-        <div style="text-align:center; padding:15px; background:rgba(255,255,255,0.05); border-radius:15px;">
-            <div id="p-round-counter" style="color:var(--gold); font-weight:bold;">Manche 1</div>
-            <button class="nav-btn" style="background:var(--gold); color:black; margin:10px 0;" onclick="rollPapayoo()">🎲 Tirer Papayoo</button>
-            <div id="p-color-name" style="font-weight:bold; font-size:1.2rem;">--</div>
-        </div>
-        <div class="table-scroll">
-            <table>
-                <thead><tr id="p-headers"></tr></thead>
-                <tbody id="p-body"></tbody>
-                <tfoot>
-                    <tr id="p-entry-row"></tr>
-                    <tr id="p-total-row" style="background:rgba(255,255,255,0.1); font-weight:bold;"></tr>
-                </tfoot>
+    <div id="guide-pro" class="screen hidden">
+        <h1 style="color:var(--gold)">Manuel du Compteur</h1>
+        
+        <div class="guide-section">
+            <h3>1. La Méthode Hi-Lo</h3>
+            <p>On attribue une valeur à chaque carte pour estimer le ratio de cartes hautes restantes.</p>
+            <table class="hilo-table">
+                <tr style="color: var(--success);"><td>2, 3, 4, 5, 6</td><td>+1</td><td>Low (Bon)</td></tr>
+                <tr style="color: #888;"><td>7, 8, 9</td><td>0</td><td>Neutre</td></tr>
+                <tr style="color: var(--danger);"><td>10, J, Q, K, A</td><td>-1</td><td>High (Mauvais)</td></tr>
             </table>
         </div>
-        <button class="btn-main" onclick="savePapayooRound()">Valider la manche</button>
+
+        <div class="guide-section">
+            <h3>2. Le True Count (Le Vrai Avantage)</h3>
+            <p>Le Running Count (RC) ne suffit pas. Dans un sabot de 6 decks, un RC de +6 est moins puissant que dans un sabot de 2 decks.</p>
+            <div style="background:#252525; padding: 15px; border-radius: 8px; font-family: monospace; text-align: center;">
+                TRUE COUNT = RC / Decks Restants
+            </div>
+            <p><i>Exemple : RC de +8 avec 4 decks restants → True Count = +2.</i></p>
+        </div>
+
+        <div class="guide-section">
+            <h3>3. Conseils de Mise</h3>
+            <p>L'avantage mathématique passe du côté du joueur quand le <b>True Count ≥ 1</b>.</p>
+            <ul>
+                <li><b>TC ≤ 0 :</b> Mise minimum (Sécurité).</li>
+                <li><b>TC +2 :</b> Multiplier mise par 4.</li>
+                <li><b>TC +4 :</b> Mise maximale.</li>
+            </ul>
+        </div>
+
+        <button class="btn-main" onclick="showScreen('bj-setup')">RETOUR AU JEU</button>
     </div>
 
     <div id="bj-setup" class="screen hidden">
-        <h1>Entraînement Blackjack</h1>
-        <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; margin-bottom: 20px;">
-            <label>Nombre de Decks :</label>
-            <select id="bj-decks" style="width:100%; padding:12px; margin:10px 0; border-radius: 8px;">
-                <option value="6" selected>6 Decks (Casino Standard)</option>
+        <h2 style="color:var(--gold)">Configuration</h2>
+        <div class="glass-panel">
+            <label>Nombre de Decks</label>
+            <select id="bj-decks" style="width:100%; padding:12px; margin:10px 0; background:#333; color:white; border:none; border-radius:8px;">
+                <option value="6">6 Decks (Casino)</option>
                 <option value="2">2 Decks</option>
                 <option value="1">1 Deck</option>
             </select>
-            
-            <label>Vitesse (sec) :</label>
-            <input type="number" id="bj-speed" value="1.5" step="0.1" style="width:100%; padding:12px; margin:10px 0; border-radius: 8px;">
-            
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 15px;">
-                <span>Mode Arrêt Aléatoire 🎲</span>
-                <label class="switch">
-                    <input type="checkbox" id="bj-random-mode">
-                    <span class="slider"></span>
-                </label>
+
+            <label>Vitesse (sec/carte)</label>
+            <input type="number" id="bj-speed" value="1.5" step="0.1" style="width:100%; padding:12px; margin:10px 0; background:#333; color:white; border:none; border-radius:8px;">
+
+            <div class="switch-container">
+                <span>Mode Aléatoire (Test)</span>
+                <label class="switch"><input type="checkbox" id="bj-random-mode"><span class="slider"></span></label>
             </div>
         </div>
-        <button class="btn-main" onclick="startBJ()">LANCER LA SESSION</button>
+        <button class="btn-main" onclick="startBJ()">Lancer la session</button>
     </div>
 
     <div id="bj-game" class="screen hidden">
         <div style="display:flex; justify-content: space-between; align-items: center;">
-            <div id="bj-cards-left">🎴 Deck: --</div>
-            <button class="nav-btn" style="background: var(--gold); color: black;" onclick="pauseBJ()">⏸ PAUSE</button>
+            <span id="bj-cards-left" style="color: var(--gold);">-- Decks</span>
+            <button class="nav-btn" onclick="pauseBJ()">PAUSE</button>
         </div>
 
         <div id="bj-card-display">
-            <div class="card-suit top-left" id="bj-suit-tl"></div>
+            <div class="card-suit top-left"></div>
             <div id="bj-card-val">?</div>
-            <div class="card-suit bottom-right" id="bj-suit-br"></div>
+            <div class="card-suit bottom-right"></div>
         </div>
 
-        <div id="bj-info-panel" class="hidden">
-            <h2 id="bj-panel-title" style="color:var(--gold); margin:0; text-align: center;">ANALYSE</h2>
-            <div class="stats-grid">
-                <div class="stat-item">Running Count <span id="bj-rc" class="stat-val">?</span></div>
-                <div class="stat-item">True Count <span id="bj-tc" class="stat-val">?</span></div>
+        <div id="bj-info-panel" class="glass-panel hidden">
+            <h2 id="bj-panel-title" style="text-align:center; margin-top:0; color:var(--gold);">PAUSE</h2>
+            
+            <div class="stat-grid">
+                <div class="stat-box"><span class="stat-label">Running</span><span id="bj-rc" class="stat-val">?</span></div>
+                <div class="stat-box"><span class="stat-label">True Count</span><span id="bj-tc" class="stat-val">?</span></div>
             </div>
-            <div id="bj-advice-area" class="hidden">
-                <div id="bj-bet-example" style="font-size: 1.2rem; font-weight: bold; color: var(--success); text-align:center;"></div>
-                <div id="bj-pro-tips" class="pro-tip-box"></div>
+
+            <div id="bj-advice-area">
+                <p id="bj-bet-advice" style="font-weight:bold; color:var(--success); text-align:center;"></p>
+                <div id="bj-pro-tips" style="font-size:0.9rem; border-top:1px solid #444; padding-top:10px; margin-top:10px;"></div>
             </div>
+
             <button id="bj-action-btn" class="btn-main" onclick="resumeBJ()">REPRENDRE</button>
+            <button id="bj-quit-btn" class="nav-btn" style="width:100%; margin-top:10px; border-color:#555; color:#888;" onclick="goHome()">QUITTER</button>
         </div>
     </div>
 
+    <div id="papayoo-setup" class="screen hidden">
+        <h2>Setup Papayoo</h2>
+        <div id="p-inputs">
+             <input type="text" placeholder="Joueur 1" class="p-name" style="width:100%; padding:12px; margin:5px 0;">
+             <input type="text" placeholder="Joueur 2" class="p-name" style="width:100%; padding:12px; margin:5px 0;">
+        </div>
+        <button class="btn-main" onclick="startPapayoo()">Jouer</button>
+    </div>
+
     <script>
-        // --- NAVIGATION ---
+        let bjDeck = [];
+        let bjRunningCount = 0;
+        let bjInterval = null;
+        let bjIsPaused = false;
+        let bjCardsDealt = 0;
+
         function showScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
             document.getElementById(id).classList.remove('hidden');
             document.getElementById('main-header').classList.toggle('hidden', id === 'home-screen');
-            
-            const ruleBtn = document.getElementById('rule-btn');
-            if(id.includes('bj')) ruleBtn.onclick = () => alert("Hi-Lo: 2-6 (+1), 7-9 (0), 10-A (-1). True Count = Running / Decks restants.");
-            if(id.includes('papayoo')) ruleBtn.onclick = () => alert("Total 250. Papayoo (7 de l'enseigne) = 40. Payoos = valeur faciale.");
         }
 
-        function goHome() { 
-            clearInterval(bjInterval); 
-            showScreen('home-screen'); 
+        function goHome() {
+            clearInterval(bjInterval);
+            showScreen('home-screen');
         }
 
-        // --- PAPAYOO LOGIC ---
-        let p_players = []; let p_round = 1;
-        function addPlayerField() {
-            const container = document.getElementById('player-inputs');
-            const input = document.createElement('input');
-            input.type = "text"; input.className = "player-name";
-            input.placeholder = "Joueur " + (container.children.length + 1);
-            input.style = "width:100%; padding:12px; margin:5px 0;";
-            container.appendChild(input);
-        }
-        function startPapayoo() {
-            p_players = Array.from(document.querySelectorAll('.player-name')).map(i => i.value.trim()).filter(v => v !== "").map(n => ({name:n, total:0}));
-            if(p_players.length < 3) return alert("3 joueurs minimum.");
-            showScreen('papayoo-game');
-            renderP(); resetPInputs();
-        }
-        function renderP() {
-            document.getElementById('p-headers').innerHTML = '<th>#</th>' + p_players.map(p => `<th>${p.name}</th>`).join('');
-            document.getElementById('p-total-row').innerHTML = '<td>TOT</td>' + p_players.map(p => `<td>${p.total}</td>`).join('');
-        }
-        function resetPInputs() {
-            document.getElementById('p-entry-row').innerHTML = `<td>M${p_round}</td>` + p_players.map(() => `<td><input type="number" class="p-in" style="width:50px; padding:5px;" oninput="pCalc()"></td>`).join('');
-            document.getElementById('p-round-counter').innerText = `Manche ${p_round} / ${p_players.length}`;
-        }
-        function pCalc() {
-            const ins = document.querySelectorAll('.p-in');
-            const filled = Array.from(ins).filter(i => i.value !== "");
-            if(filled.length === p_players.length - 1) {
-                const empty = Array.from(ins).find(i => i.value === "");
-                const sum = Array.from(ins).reduce((a,i) => a + (parseInt(i.value) || 0), 0);
-                empty.placeholder = 250 - sum;
-            }
-        }
-        function savePapayooRound() {
-            const ins = document.querySelectorAll('.p-in');
-            const vals = Array.from(ins).map(i => i.value === "" ? (parseInt(i.placeholder) || 0) : parseInt(i.value));
-            if(vals.reduce((a,b)=>a+b,0) !== 250) return alert("Le total doit être 250");
-            const row = document.createElement('tr'); row.innerHTML = `<td>${p_round}</td>` + vals.map(v => `<td>${v}</td>`).join('');
-            document.getElementById('p-body').appendChild(row);
-            p_players.forEach((p,i) => p.total += vals[i]);
-            renderP();
-            if(p_round >= p_players.length) alert("Partie terminée !"); else { p_round++; resetPInputs(); }
-        }
-        function rollPapayoo() {
-            const s = [{n:'♠ PIQUE',c:'#2c3e50'},{n:'♥ COEUR',c:'#e74c3c'},{n:'♦ CARREAU',c:'#e67e22'},{n:'♣ TREFLE',c:'#27ae60'}][Math.floor(Math.random()*4)];
-            const el = document.getElementById('p-color-name'); el.innerText = s.n; el.style.color = s.c;
-        }
-
-        // --- BLACKJACK LOGIC ---
-        let bjDeck = []; let bjRunningCount = 0; let bjInterval = null; let bjIsPaused = false;
-
+        // BLACKJACK LOGIC
         function startBJ() {
             const numDecks = parseInt(document.getElementById('bj-decks').value);
             bjDeck = [];
-            const cards = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+            const values = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
             const suits = ['♠','♥','♦','♣'];
             for(let d=0; d<numDecks; d++) {
-                for(let s of suits) { for(let c of cards) { bjDeck.push({val: c, suit: s}); } }
+                for(let s of suits) { for(let v of values) { bjDeck.push({v, s}); } }
             }
             bjDeck.sort(() => Math.random() - 0.5);
             bjRunningCount = 0;
+            bjCardsDealt = 0;
             showScreen('bj-game');
             resumeBJ();
         }
 
         function dealCard() {
-            if(bjDeck.length === 0) { clearInterval(bjInterval); alert("Fin du sabot !"); return; }
+            if(bjDeck.length === 0) {
+                endBJSession();
+                return;
+            }
             const card = bjDeck.pop();
-            const valEl = document.getElementById('bj-card-val');
-            valEl.innerText = card.val;
-            valEl.style.color = (card.suit === '♥' || card.suit === '♦') ? 'var(--card-red)' : 'var(--card-black)';
-            document.querySelectorAll('.card-suit').forEach(el => { el.innerText = card.suit; el.style.color = valEl.style.color; });
-            document.getElementById('bj-cards-left').innerText = `🎴 Deck: ${bjDeck.length} (${(bjDeck.length/52).toFixed(1)} rem.)`;
+            bjCardsDealt++;
             
-            if(['2','3','4','5','6'].includes(card.val)) bjRunningCount++;
-            else if(['10','J','Q','K','A'].includes(card.val)) bjRunningCount--;
+            const valEl = document.getElementById('bj-card-val');
+            valEl.innerText = card.v;
+            const isRed = (card.s === '♥' || card.s === '♦');
+            valEl.style.color = isRed ? 'var(--danger)' : 'black';
+            document.querySelectorAll('.card-suit').forEach(el => {
+                el.innerText = card.s;
+                el.style.color = valEl.style.color;
+            });
 
-            if(document.getElementById('bj-random-mode').checked && Math.random() < 0.10) {
-                setTimeout(triggerRandomStop, 600);
+            const decksRem = (bjDeck.length / 52).toFixed(1);
+            document.getElementById('bj-cards-left').innerText = `🃏 ${decksRem} Decks restants`;
+
+            // Compte Hi-Lo
+            if(['2','3','4','5','6'].includes(card.v)) bjRunningCount++;
+            else if(['10','J','Q','K','A'].includes(card.v)) bjRunningCount--;
+
+            // Arrêt aléatoire
+            if(document.getElementById('bj-random-mode').checked && Math.random() < 0.12 && bjCardsDealt > 3) {
+                setTimeout(triggerTest, 500);
             }
         }
 
-        function triggerRandomStop() {
-            clearInterval(bjInterval); bjIsPaused = true;
-            document.getElementById('bj-panel-title').innerText = "🎲 TEST !";
+        function triggerTest() {
+            clearInterval(bjInterval);
+            bjIsPaused = true;
+            document.getElementById('bj-panel-title').innerText = "🎲 TEST MÉMOIRE";
             document.getElementById('bj-rc').innerText = "???";
             document.getElementById('bj-tc').innerText = "???";
-            document.getElementById('bj-advice-area').classList.add('hidden');
+            document.getElementById('bj-bet-advice').innerText = "";
+            document.getElementById('bj-pro-tips').innerText = "Calculez le Running Count et le True Count avant de révéler.";
+            
             const btn = document.getElementById('bj-action-btn');
-            btn.innerText = "👁️ RÉVÉLER";
-            btn.style.background = "var(--gold)";
-            btn.onclick = () => revealStats();
+            btn.innerText = "RÉVÉLER";
+            btn.onclick = revealStats;
             document.getElementById('bj-info-panel').classList.remove('hidden');
         }
 
         function pauseBJ() {
-            clearInterval(bjInterval); bjIsPaused = true;
-            document.getElementById('bj-panel-title').innerText = "PAUSE";
+            clearInterval(bjInterval);
+            bjIsPaused = true;
+            document.getElementById('bj-panel-title').innerText = "PAUSE ANALYSE";
             revealStats();
         }
 
         function revealStats() {
             const decksRem = Math.max(0.5, bjDeck.length / 52);
             const tc = Math.floor(bjRunningCount / decksRem);
+            
             document.getElementById('bj-rc').innerText = bjRunningCount;
             document.getElementById('bj-tc').innerText = tc;
-            document.getElementById('bj-advice-area').classList.remove('hidden');
             
-            const bet = document.getElementById('bj-bet-example');
-            const pro = document.getElementById('bj-pro-tips');
-            
-            if(tc >= 3) { bet.innerText = "MISE : 8-12 UNITÉS"; pro.innerHTML = "Avantage joueur max ! Prenez l'assurance."; }
-            else if(tc >= 1) { bet.innerText = `MISE : ${tc*2} UNITÉS`; pro.innerHTML = "L'avantage bascule. Montez vos mises."; }
-            else { bet.innerText = "MISE : 1 UNITÉ"; pro.innerHTML = "Sabot neutre ou froid. Restez prudent."; }
+            const advice = document.getElementById('bj-bet-advice');
+            const tips = document.getElementById('bj-pro-tips');
+
+            if(tc >= 3) {
+                advice.innerText = "🔥 MISEZ FORT (8-12 unités)";
+                tips.innerHTML = "<b>Conseil :</b> Sabot chargé en grosses cartes. Prenez l'assurance si le croupier a un As. Doublez vos 9 contre un 2 et vos 11 contre un As.";
+            } else if(tc >= 1) {
+                advice.innerText = "✅ MISE MODÉRÉE (" + (tc+1) + " unités)";
+                tips.innerHTML = "<b>Conseil :</b> L'avantage bascule doucement. Jouez votre stratégie de base sans déviation majeure.";
+            } else {
+                advice.innerText = "🧊 MISE MINIMUM";
+                tips.innerHTML = "<b>Conseil :</b> Sabot neutre ou négatif. Ne prenez aucun risque, attendez que le compte remonte.";
+            }
 
             const btn = document.getElementById('bj-action-btn');
-            btn.innerText = "REPRENDRE"; btn.style.background = "var(--success)";
+            btn.innerText = "CONTINUER";
             btn.onclick = resumeBJ;
             document.getElementById('bj-info-panel').classList.remove('hidden');
         }
 
-        function resumeBJ() {
-            bjIsPaused = false;
-            document.getElementById('bj-info-panel').classList.add('hidden');
-            bjInterval = setInterval(dealCard, parseFloat(document.getElementById('bj-speed').value) * 1000);
+        function endBJSession() {
+            clearInterval(bjInterval);
+            document.getElementById('bj-panel-title').innerText = "🏁 FIN DU PAQUET";
+            revealStats();
+            const btn = document.getElementById('bj-action-btn');
+            btn.innerText = "REJOUER";
+            btn.onclick = startBJ;
         }
 
-        window.addEventListener('keydown', (e) => {
+        function resumeBJ() {
+            document.getElementById('bj-info-panel').classList.add('hidden');
+            const speed = parseFloat(document.getElementById('bj-speed').value) * 1000;
+            bjInterval = setInterval(dealCard, speed);
+            bjIsPaused = false;
+        }
+
+        // Shortcut barre espace
+        window.onkeydown = (e) => {
             if(e.code === "Space" && !document.getElementById('bj-game').classList.contains('hidden')) {
-                bjIsPaused ? resumeBJ() : pauseBJ(); e.preventDefault();
+                bjIsPaused ? resumeBJ() : pauseBJ();
             }
-        });
+        };
+
+        function startPapayoo() { alert("Mode Papayoo en cours de maintenance esthétique, utilisez le Blackjack !"); }
     </script>
 </body>
 </html>
