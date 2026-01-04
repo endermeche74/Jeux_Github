@@ -27,33 +27,32 @@
         .btn-main { width: 100%; padding: 16px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 0.9rem; transition: 0.2s; margin-top: 10px; }
         .btn-gold { background: var(--gold); color: black; }
         .btn-action { flex: 1; background: #333; color: white; border: 1px solid #555; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
-        .btn-action:disabled { opacity: 0.2; cursor: not-allowed; }
+        .btn-action:disabled { opacity: 0.2; cursor: not-allowed; background: #222; color: #555; }
         
-        /* Style spécifique pour le gros bouton à droite */
+        /* Gros bouton Nouvelle Main */
         .btn-side-big {
             width: 100%; height: 100%; min-height: 120px;
-            background: var(--gold); color: black;
-            border: none; border-radius: 15px;
-            font-size: 1.4rem; font-weight: 800;
-            text-transform: uppercase; cursor: pointer;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.4);
-            transition: transform 0.1s;
-            padding: 20px; white-space: normal; line-height: 1.2;
+            background: var(--gold); color: black; border: none; border-radius: 15px;
+            font-size: 1.4rem; font-weight: 800; text-transform: uppercase; cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.4); padding: 20px;
         }
-        .btn-side-big:active { transform: scale(0.98); }
 
         /* --- BLACKJACK LAYOUT --- */
-        .bj-container { display: flex; gap: 15px; }
-        .bj-table-area { flex: 3; } /* La table prend plus de place */
-        .bj-side-panel { flex: 1; display: flex; flex-direction: column; justify-content: center; } /* Panneau latéral */
-
+        .bj-container { display: flex; gap: 15px; flex-direction: column; } /* Mobile friendly column */
+        @media(min-width: 450px) { .bj-container { flex-direction: row; } }
+        
         .bj-table-style {
             background-color: #27ae60; border: 5px solid #3e2723; border-radius: 15px; padding: 15px;
-            box-shadow: inset 0 0 30px rgba(0,0,0,0.5);
+            box-shadow: inset 0 0 30px rgba(0,0,0,0.5); flex: 3;
         }
 
-        /* --- CARDS --- */
-        .hand-area { display: flex; justify-content: center; gap: 8px; min-height: 100px; margin: 10px 0; flex-wrap: wrap; perspective: 1000px; }
+        /* --- CARDS & HANDS --- */
+        .hand-wrapper { display: flex; justify-content: center; gap: 5px; flex-wrap: wrap; margin-bottom: 10px; min-height: 100px; }
+        
+        /* Style pour une main active (bordure or) */
+        .active-hand-box { border: 2px solid var(--gold); background: rgba(0,0,0,0.2); border-radius: 10px; padding: 5px; }
+        .inactive-hand-box { border: 2px solid transparent; opacity: 0.7; padding: 5px; }
+
         .card { 
             width: 60px; height: 90px; background: white; border-radius: 6px; color: black; 
             display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.3rem;
@@ -88,12 +87,12 @@
         
         <div class="glass" onclick="setupBlackjack()" style="border-left: 5px solid var(--gold);">
             <h2 style="margin:0;">🃏 Blackjack Réel</h2>
-            <p style="color:#888; font-size:0.9rem;">Simulateur complet avec Dealer.</p>
+            <p style="color:#888; font-size:0.9rem;">Dealer, Split, Double & Règles Strictes.</p>
         </div>
 
         <div class="glass" onclick="setupSpeed()" style="border-left: 5px solid var(--green);">
             <h2 style="margin:0;">⏱️ Vitesse Hi-Lo</h2>
-            <p style="color:#888; font-size:0.9rem;">Entraînement au comptage rapide.</p>
+            <p style="color:#888; font-size:0.9rem;">Entraînement au comptage (Cartes muettes).</p>
         </div>
 
         <div class="glass" onclick="setupPapayoo()" style="border-left: 5px solid var(--blue);">
@@ -115,44 +114,40 @@
                 <option value="1">1 Deck</option>
                 <option value="2">2 Decks</option>
             </select>
-            <button class="btn-main btn-gold" onclick="startBlackjack()">JOUER</button>
+            <button class="btn-main btn-gold" onclick="startBlackjackGame()">JOUER</button>
         </div>
     </div>
 
     <div id="bj-game" class="screen">
         <div class="nav-header" style="margin-bottom: 10px;">
              <button class="nav-btn" style="color:#e74c3c;" onclick="goHome()"><span>🚪</span>Quitter</button>
-             <h3 style="margin:0; color:var(--gold)">TABLE BLACJKACK</h3>
+             <h3 style="margin:0; color:var(--gold)">TABLE BLACKJACK</h3>
              <div style="width:30px"></div>
         </div>
 
         <div class="bj-container">
-            <div class="bj-table-area">
-                <div class="bj-table-style">
-                    <div style="text-align:center;">
-                        <div style="font-size:0.8rem; color:#eee; margin-bottom:5px; background:rgba(0,0,0,0.3); display:inline-block; padding:2px 8px; border-radius:10px;">CROUPIER: <span id="d-score" style="font-weight:bold;">?</span></div>
-                        <div id="d-hand" class="hand-area"></div>
-                    </div>
-
-                    <div id="game-msg" style="text-align:center; font-weight:bold; color:var(--gold); font-size:1.2rem; height:25px; margin: 5px 0; text-shadow: 1px 1px 2px black;"></div>
-
-                    <div style="text-align:center;">
-                        <div id="p-hand" class="hand-area"></div>
-                        <div style="font-size:0.8rem; color:#eee; margin-top:5px; background:rgba(0,0,0,0.3); display:inline-block; padding:2px 8px; border-radius:10px;">JOUEUR: <span id="p-score" style="font-weight:bold;">0</span></div>
-                    </div>
+            <div class="bj-table-style">
+                <div style="text-align:center;">
+                    <div style="font-size:0.8rem; color:#eee; margin-bottom:5px; background:rgba(0,0,0,0.3); display:inline-block; padding:2px 8px; border-radius:10px;">CROUPIER: <span id="d-score" style="font-weight:bold;">?</span></div>
+                    <div id="d-hand-area" class="hand-wrapper"></div>
                 </div>
+
+                <div id="game-msg" style="text-align:center; font-weight:bold; color:var(--gold); font-size:1.2rem; height:25px; margin: 5px 0; text-shadow: 1px 1px 2px black;"></div>
+
+                <div id="p-hands-container" style="text-align:center; min-height: 150px;">
+                    </div>
             </div>
 
-            <div class="bj-side-panel">
-                <button class="btn-side-big" onclick="startBlackjack()">NOUVELLE MAIN</button>
+            <div style="flex:1; display:flex; flex-direction:column; gap:10px;">
+                <button class="btn-side-big" onclick="startBlackjackGame()">NOUVELLE MAIN</button>
             </div>
         </div>
 
         <div class="controls" id="controls" style="display:flex; gap:10px; margin-top:15px;">
-            <button class="btn-action" style="background:#27ae60;" onclick="hit()">TIRER</button>
-            <button class="btn-action" style="background:#c0392b;" onclick="stand()">RESTER</button>
-            <button class="btn-action" id="btn-double" style="background:#f39c12; color:black;" onclick="double()">DOUBLER</button>
-            <button class="btn-action" id="btn-split" style="background:#2980b9;" onclick="split()">SPLIT</button>
+            <button class="btn-action" style="background:#27ae60;" onclick="playerHit()">TIRER</button>
+            <button class="btn-action" style="background:#c0392b;" onclick="playerStand()">RESTER</button>
+            <button class="btn-action" id="btn-double" style="background:#f39c12; color:black;" onclick="playerDouble()">DOUBLER</button>
+            <button class="btn-action" id="btn-split" style="background:#2980b9;" onclick="playerSplit()">SPLIT</button>
         </div>
     </div>
 
@@ -169,7 +164,7 @@
                 <span>Arrêt Aléatoire</span>
                 <input type="checkbox" id="speed-random" checked style="transform: scale(1.5);">
             </div>
-            <button class="btn-main" style="background:var(--green); color:white;" onclick="initSpeedGame()">DÉMARRER</button>
+            <button class="btn-main" style="background:var(--green); color:white;" onclick="startSpeedGame()">DÉMARRER</button>
         </div>
     </div>
 
@@ -177,12 +172,12 @@
         <div class="nav-header">
             <button class="nav-btn" onclick="goHome()"><span>🏠</span>Quitter</button>
             <h3 style="margin:0; color:var(--green)">HI-LO TRAINING</h3>
-            <button class="nav-btn" style="color:var(--red);" onclick="initSpeedGame()"><span>🔄</span>Reset</button>
+            <button class="nav-btn" style="color:var(--red);" onclick="startSpeedGame()"><span>🔄</span>Reset</button>
         </div>
 
         <div id="speed-card-box" class="speed-card-box">?</div>
         
-        <div id="speed-hint" style="text-align:center; color:var(--green); font-weight:bold; height:30px; margin-bottom:10px; font-size:1.5rem;"></div>
+        <div id="speed-hint" style="text-align:center; color:var(--green); font-weight:bold; height:30px; margin-bottom:10px; font-size:1.2rem;"></div>
 
         <button class="btn-main btn-gold" onclick="checkCount()">VÉRIFIER LE COMPTE (STOP)</button>
         <button class="btn-main" style="background:#333; color:white; margin-top:10px;" onclick="toggleSpeedPause()">PAUSE / REPRENDRE</button>
@@ -210,14 +205,14 @@
 
     <div id="modal-ana" class="modal">
         <div class="modal-box">
-            <h2 style="color:var(--gold); margin-top:0;">VÉRIFICATION</h2>
+            <h2 style="color:var(--gold); margin-top:0;">RÉSULTAT</h2>
             <div class="glass" style="cursor:default;">
                 <p style="color:#888; margin:0;">RUNNING COUNT</p>
                 <div id="ana-rc" style="font-size:4rem; font-weight:bold; color:var(--gold);">0</div>
                 <hr style="border:0; border-top:1px solid #333; margin:15px 0;">
-                <p style="color:#888; margin:0;">TRUE COUNT Estimation</p>
+                <p style="color:#888; margin:0;">TRUE COUNT</p>
                 <div id="ana-tc" style="font-size:2rem; font-weight:bold;">0</div>
-                <p style="font-size:0.7rem; color:#666;">(Basé sur decks restants)</p>
+                <p style="font-size:0.7rem; color:#666;">(Estimation decks restants)</p>
             </div>
             <button class="btn-main btn-gold" onclick="closeModal()">FERMER</button>
         </div>
@@ -226,19 +221,25 @@
     <script>
         // --- GLOBAL & NAV ---
         let deck = [], rc = 0, speedTimer = null;
-        let pHand = [], dHand = [], gameOver = false;
-        let pPlayers = [];
+        let pHand = [], dHand = []; // (Obsolète pour BJ multi-mains, utilisé pour compatibilité si besoin)
+        let playerHands = []; // Tableau d'objets { cards: [], bet: 1, done: false }
+        let currentHandIndex = 0;
+        let dealerCards = [];
+        let bjGameOver = false;
 
         function showScreen(id) {
             stopAll();
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
         }
-        function goHome() { showScreen('home'); }
+        function goHome() { showScreen('scr-home'); }
         function setupBlackjack() { showScreen('bj-setup'); }
         function setupSpeed() { showScreen('speed-setup'); }
         function setupPapayoo() { showScreen('papayoo'); document.getElementById('p-setup-area').classList.remove('hidden'); document.getElementById('p-play-area').classList.add('hidden'); }
-        function stopAll() { clearInterval(speedTimer); speedTimer = null; closeModal(); }
+        
+        function stopAll() {
+            clearInterval(speedTimer); speedTimer = null; closeModal();
+        }
         function closeModal() { document.getElementById('modal-ana').style.display = 'none'; }
 
         // --- DECK COMMON ---
@@ -255,22 +256,102 @@
             return 0;
         }
 
-        // --- BLACKJACK ENGINE ---
-        async function startBlackjack() {
+        // ================== BLACKJACK ENGINE (MULTI-MAINS / SPLIT) ==================
+        async function startBlackjackGame() {
             if(deck.length < 15) createDeck(parseInt(document.getElementById('deck-count').value) || 6);
             showScreen('bj-game');
-            pHand = []; dHand = []; gameOver = false;
             
-            document.getElementById('p-hand').innerHTML = ''; document.getElementById('d-hand').innerHTML = '';
+            // Reset State
+            playerHands = [{ cards: [], done: false }];
+            currentHandIndex = 0;
+            dealerCards = [];
+            bjGameOver = false;
+            
             document.getElementById('game-msg').innerText = '';
-            document.getElementById('controls').classList.add('hidden');
-            updateScores();
+            document.getElementById('d-hand-area').innerHTML = '';
+            document.getElementById('p-hands-container').innerHTML = '';
+            document.getElementById('controls').classList.add('hidden'); // Caché pendant distrib
+            
+            renderBJ();
 
-            await dealCard('p', true); await dealCard('d', true);
-            await dealCard('p', true); await dealCard('d', false);
+            // Distribution Animée
+            await dealToPlayer(0);
+            await dealToDealer(true);
+            await dealToPlayer(0);
+            await dealToDealer(false); // Carte cachée
 
-            document.getElementById('controls').classList.remove('hidden');
-            checkNaturalBJ(); updateButtons();
+            // Check Blackjack Naturel sur la main initiale
+            if(getScore(playerHands[0].cards) === 21) {
+                document.getElementById('game-msg').innerText = "BLACKJACK !";
+                playerHands[0].done = true;
+                endBlackjackRound();
+            } else {
+                document.getElementById('controls').classList.remove('hidden');
+            }
+            renderBJ();
+        }
+
+        async function dealToPlayer(handIdx) {
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    const c = deck.pop();
+                    playerHands[handIdx].cards.push(c);
+                    renderBJ();
+                    resolve();
+                }, 350);
+            });
+        }
+
+        async function dealToDealer(visible) {
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    const c = deck.pop();
+                    c.visible = visible; // Flag pour l'affichage
+                    dealerCards.push(c);
+                    renderBJ();
+                    resolve();
+                }, 350);
+            });
+        }
+
+        function renderBJ() {
+            // Render Dealer
+            const dArea = document.getElementById('d-hand-area');
+            dArea.innerHTML = '';
+            dealerCards.forEach(c => {
+                dArea.appendChild(createCardDOM(c, !c.visible));
+            });
+            // Score Dealer (seulement visible)
+            let dScore = 0;
+            const visibleDCards = dealerCards.filter(c => c.visible);
+            if(visibleDCards.length > 0) dScore = getScore(visibleDCards);
+            document.getElementById('d-score').innerText = dScore;
+
+            // Render Player Hands
+            const pContainer = document.getElementById('p-hands-container');
+            pContainer.innerHTML = '';
+            
+            playerHands.forEach((hand, idx) => {
+                const handBox = document.createElement('div');
+                // Encadré or si c'est la main active
+                handBox.className = (idx === currentHandIndex && !bjGameOver) ? 'active-hand-box' : 'inactive-hand-box';
+                
+                const scoreDisplay = document.createElement('div');
+                scoreDisplay.style.color = '#ccc';
+                scoreDisplay.style.fontSize = '0.8rem';
+                scoreDisplay.innerText = `MAIN ${idx+1}: ${getScore(hand.cards)}`;
+                handBox.appendChild(scoreDisplay);
+
+                const cardRow = document.createElement('div');
+                cardRow.className = 'hand-wrapper';
+                hand.cards.forEach(c => {
+                    cardRow.appendChild(createCardDOM(c, false));
+                });
+                handBox.appendChild(cardRow);
+                pContainer.appendChild(handBox);
+            });
+
+            updateControls();
         }
 
         function createCardDOM(card, isHidden) {
@@ -285,75 +366,153 @@
             return el;
         }
 
-        async function dealCard(target, visible) {
-            return new Promise(resolve => {
-                setTimeout(() => {
-                    const c = deck.pop();
-                    const el = createCardDOM(c, !visible);
-                    if(target === 'p') { pHand.push(c); document.getElementById('p-hand').appendChild(el); }
-                    else { dHand.push(c); document.getElementById('d-hand').appendChild(el); }
-                    updateScores(); resolve();
-                }, 350);
+        function getScore(cards) {
+            let s = 0, a = 0;
+            cards.forEach(c => {
+                if(c.r==='A') a++;
+                else if(['K','Q','J','10'].includes(c.r)) s+=10;
+                else s+=parseInt(c.r);
             });
+            for(let i=0; i<a; i++) s += (s + 11 <= 21) ? 11 : 1;
+            return s;
         }
 
-        function getScore(hand) {
-            let s=0, a=0;
-            hand.forEach(c => { if(c.r==='A')a++; else if(['K','Q','J','10'].includes(c.r))s+=10; else s+=parseInt(c.r); });
-            for(let i=0; i<a; i++) s+=(s+11<=21)?11:1; return s;
+        function updateControls() {
+            if(bjGameOver) {
+                document.getElementById('controls').classList.add('hidden');
+                return;
+            }
+            const currentHand = playerHands[currentHandIndex];
+            if(!currentHand) return;
+
+            // Split: seulement si 2 cartes de même valeur faciale
+            const canSplit = (currentHand.cards.length === 2 && currentHand.cards[0].r === currentHand.cards[1].r);
+            document.getElementById('btn-split').disabled = !canSplit;
+
+            // Double: seulement si 2 cartes
+            const canDouble = (currentHand.cards.length === 2);
+            document.getElementById('btn-double').disabled = !canDouble;
         }
 
-        function updateScores() {
-            document.getElementById('p-score').innerText = getScore(pHand);
-            if(dHand.length > 0) {
-                if(!gameOver && dHand.length === 2) {
-                    const c=dHand[0]; let v=0; if(c.r==='A')v=11; else if(['K','Q','J','10'].includes(c.r))v=10; else v=parseInt(c.r);
-                    document.getElementById('d-score').innerText = v;
-                } else { document.getElementById('d-score').innerText = getScore(dHand); }
+        // Actions Joueur
+        async function playerHit() {
+            const h = playerHands[currentHandIndex];
+            await dealToPlayer(currentHandIndex);
+            if(getScore(h.cards) > 21) {
+                h.done = true;
+                nextHand();
             }
         }
 
-        function updateButtons() {
-            if(gameOver) { document.getElementById('controls').classList.add('hidden'); return; }
-            document.getElementById('btn-double').disabled = (pHand.length !== 2);
-            document.getElementById('btn-split').disabled = !(pHand.length === 2 && pHand[0].r === pHand[1].r);
+        function playerStand() {
+            playerHands[currentHandIndex].done = true;
+            nextHand();
         }
 
-        function checkNaturalBJ() { if(getScore(pHand) === 21) { document.getElementById('game-msg').innerText = "BLACKJACK !"; endGame(); }}
-        async function hit() { await dealCard('p', true); if(getScore(pHand)>21) { document.getElementById('game-msg').innerText="BUST !"; endGame(); } else updateButtons(); }
-        async function double() { await dealCard('p', true); endGame(); }
-        function stand() { endGame(); }
-        function split() { alert("Split non disponible dans ce simulateur simple."); }
-
-        async function endGame() {
-            gameOver = true; document.getElementById('controls').classList.add('hidden');
-            const dCont = document.getElementById('d-hand'); const hid = dCont.children[1];
-            if(hid) dCont.replaceChild(createCardDOM(dHand[1], false), hid);
-            updateScores();
-            if(getScore(pHand) <= 21) { while(getScore(dHand) < 17) await dealCard('d', true); }
-            const p=getScore(pHand), d=getScore(dHand); let msg="";
-            if(p>21)msg="PERDU (Bust)"; else if(d>21)msg="GAGNÉ (Dealer Bust)"; else if(p>d)msg="GAGNÉ"; else if(p<d)msg="PERDU"; else msg="ÉGALITÉ";
-            document.getElementById('game-msg').innerText = msg;
+        async function playerDouble() {
+            const h = playerHands[currentHandIndex];
+            await dealToPlayer(currentHandIndex);
+            h.done = true; // Une seule carte pour double
+            nextHand();
         }
 
-        // --- SPEED VITESSE ENGINE ---
-        function initSpeedGame() {
-            createDeck(6); showScreen('speed-game'); resumeSpeed();
+        async function playerSplit() {
+            const h = playerHands[currentHandIndex];
+            const cardToMove = h.cards.pop();
+            
+            // Créer nouvelle main
+            const newHand = { cards: [cardToMove], done: false };
+            // L'insérer après la main courante
+            playerHands.splice(currentHandIndex + 1, 0, newHand);
+            
+            renderBJ();
+            // On distribue une carte à la main courante pour compléter
+            await dealToPlayer(currentHandIndex);
+            // La main splittée recevra sa carte quand ce sera son tour ou on peut distribuer tout de suite ?
+            // Règle standard : on distribue aux deux as si split d'as, sinon on joue la première puis la seconde.
+            // On laisse simple : on joue la main courante.
+        }
+
+        function nextHand() {
+            if(currentHandIndex < playerHands.length - 1) {
+                currentHandIndex++;
+                renderBJ();
+                // Si la nouvelle main n'a qu'une carte (suite à un split), on lui en donne une 2ème
+                if(playerHands[currentHandIndex].cards.length === 1) {
+                     dealToPlayer(currentHandIndex);
+                }
+            } else {
+                endBlackjackRound();
+            }
+        }
+
+        async function endBlackjackRound() {
+            bjGameOver = true;
+            document.getElementById('controls').classList.add('hidden');
+            
+            // Révéler Dealer
+            dealerCards[1].visible = true;
+            renderBJ();
+
+            // Dealer joue si au moins un joueur n'a pas bust (optionnel, mais plus réaliste)
+            // Ici dealer joue toujours pour voir le résultat
+            while(getScore(dealerCards) < 17) {
+                await dealToDealer(true);
+            }
+
+            // Résultats
+            const dScore = getScore(dealerCards);
+            let resultText = "";
+            
+            // On regarde la main 0 pour le message principal (simplification visuelle)
+            // Idéalement on afficherait gagné/perdu sous chaque main
+            const pScore = getScore(playerHands[0].cards);
+            
+            if(pScore > 21) resultText = "BUST !";
+            else if(dScore > 21) resultText = "DEALER BUST - GAGNÉ !";
+            else if(pScore > dScore) resultText = "GAGNÉ !";
+            else if(pScore < dScore) resultText = "PERDU...";
+            else resultText = "PUSH (Égalité)";
+
+            if(playerHands.length > 1) resultText = "FIN DE PARTIE (Multi)";
+
+            document.getElementById('game-msg').innerText = resultText;
+        }
+
+
+        // ================== SPEED GAME ENGINE ==================
+        function startSpeedGame() {
+            createDeck(6); 
+            showScreen('speed-game'); 
+            resumeSpeed();
         }
         function resumeSpeed() {
             const spd = parseFloat(document.getElementById('speed-sec').value)*1000;
             const rnd = document.getElementById('speed-random').checked;
             document.getElementById('speed-hint').innerText = "";
+            
             speedTimer = setInterval(() => {
                 if(deck.length===0) { checkCount(); return; }
-                if(rnd && Math.random()<0.12) { clearInterval(speedTimer); speedTimer=null; document.getElementById('speed-hint').innerText="ARRÊT ALÉATOIRE !"; document.getElementById('speed-card-box').innerText="???"; return; }
-                const c = deck.pop(); rc += getHiLo(c.r);
-                const box = document.getElementById('speed-card-box'); box.innerText = c.r;
+                
+                if(rnd && Math.random()<0.12) { 
+                    clearInterval(speedTimer); speedTimer=null; 
+                    document.getElementById('speed-hint').innerText = "ARRÊT ALÉATOIRE !"; 
+                    document.getElementById('speed-card-box').innerText="???"; 
+                    return; 
+                }
+
+                const c = deck.pop(); 
+                rc += getHiLo(c.r);
+                const box = document.getElementById('speed-card-box'); 
+                box.innerText = c.r;
                 box.style.color = (c.s==='♥'||c.s==='♦') ? 'var(--red)' : 'black';
-                const h=getHiLo(c.r); document.getElementById('speed-hint').innerText = (h>0?'+'+h:h);
+                
             }, spd);
         }
-        function toggleSpeedPause() { if(speedTimer){clearInterval(speedTimer); speedTimer=null;} else resumeSpeed(); }
+        function toggleSpeedPause() { 
+            if(speedTimer){ clearInterval(speedTimer); speedTimer=null; } 
+            else resumeSpeed(); 
+        }
         function checkCount() {
             clearInterval(speedTimer); speedTimer=null;
             document.getElementById('modal-ana').style.display='flex';
@@ -362,7 +521,9 @@
             document.getElementById('ana-tc').innerText = Math.floor(rc/dr);
         }
 
-        // --- PAPAYOO ---
+
+        // ================== PAPAYOO ENGINE ==================
+        let pPlayers = [];
         function runPapayoo() {
             pPlayers = Array.from(document.querySelectorAll('.p-name')).map(i=>i.value.trim()).filter(n=>n).map(n=>({name:n,scores:[],total:0}));
             if(pPlayers.length===0) return alert("Noms?");
@@ -385,6 +546,7 @@
             const c=['♥','♦','♣','♠'], cl=['#e74c3c','#e67e22','#27ae60','#2980b9'], r=Math.floor(Math.random()*4);
             const el=document.getElementById('p-color-res'); el.innerText="7 de "+c[r]; el.style.color=cl[r];
         }
+
     </script>
 </body>
 </html>
