@@ -2,311 +2,285 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Casino & Papayoo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Mastery Hub - Ultimate</title>
     <style>
         :root {
-            --bg: #1a1a1a;
-            --table: #2c3e50; /* Couleur tapis */
-            --gold: #f1c40f;
-            --white: #ecf0f1;
-            --card-w: 70px;
-            --card-h: 100px;
+            --bg: #121212; --panel: #1e1e1e;
+            --gold: #f1c40f; --text: #ffffff;
+            --green: #27ae60; --red: #c0392b; --blue: #2980b9;
         }
 
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background-color: var(--bg);
-            color: var(--white);
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        /* --- NAVIGATION --- */
-        .header {
-            width: 100%; max-width: 500px;
-            padding: 15px;
-            display: flex; justify-content: space-between;
-            box-sizing: border-box;
-            background: #000;
-        }
-        
-        .nav-btn {
-            background: transparent; border: 1px solid var(--gold); 
-            color: var(--gold); padding: 5px 15px; border-radius: 5px; cursor: pointer;
-        }
-
-        /* --- ÉCRANS --- */
-        .screen { width: 100%; max-width: 500px; display: none; padding: 10px; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 30px; }
+        .screen { width: 100%; max-width: 600px; padding: 15px; margin: auto; box-sizing: border-box; display: none; min-height: 100vh; }
         .active { display: block; }
 
-        /* --- ACCUEIL --- */
-        .menu-card {
-            background: #333; border-left: 5px solid var(--gold);
-            padding: 20px; margin: 20px 0; border-radius: 8px; cursor: pointer;
-            transition: 0.2s;
-        }
-        .menu-card:hover { background: #444; }
+        /* --- NAVIGATION --- */
+        .nav-header { display: flex; justify-content: space-between; align-items: center; background: #222; padding: 10px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #333; }
+        .nav-btn { background: transparent; border: none; color: #ccc; cursor: pointer; display: flex; flex-direction: column; align-items: center; font-size: 0.7rem; font-weight: bold; }
+        .nav-btn span { font-size: 1.2rem; margin-bottom: 2px; }
+        .nav-btn:hover { color: var(--gold); }
 
-        /* --- BLACKJACK TABLE --- */
-        .bj-table {
-            background-color: #27ae60; /* Tapis vert classique pour bien voir les cartes */
-            border: 8px solid #3e2723; /* Bordure bois */
-            border-radius: 20px;
-            padding: 20px;
-            min-height: 400px;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            box-shadow: inset 0 0 50px rgba(0,0,0,0.5);
-        }
-
-        .hand-area {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px; /* Espace entre les cartes */
-            min-height: 110px;
-        }
-
-        .score-bubble {
-            background: rgba(0,0,0,0.6);
-            color: white;
-            padding: 2px 10px;
-            border-radius: 10px;
-            font-size: 0.8rem;
-            margin-bottom: 5px;
-            text-align: center;
-            width: fit-content;
-            margin: 0 auto 5px auto;
-        }
-
-        /* --- CARTES --- */
-        .card {
-            width: var(--card-w);
-            height: var(--card-h);
-            background: white;
-            border-radius: 6px;
-            color: black;
-            font-weight: bold;
-            font-size: 1.2rem;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            box-shadow: 2px 2px 5px rgba(0,0,0,0.4);
-            position: relative;
-            animation: deal 0.4s ease-out; /* Animation d'arrivée */
-        }
+        /* --- UI ELEMENTS --- */
+        .glass { background: var(--panel); border: 1px solid #333; border-radius: 15px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); position: relative; cursor: pointer; transition: 0.2s; }
+        .glass:hover { background: #252525; }
+        .btn-main { width: 100%; padding: 16px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 0.9rem; transition: 0.2s; margin-top: 10px; }
+        .btn-gold { background: var(--gold); color: black; }
+        .btn-action { flex: 1; background: #333; color: white; border: 1px solid #555; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .btn-action:disabled { opacity: 0.2; cursor: not-allowed; }
         
-        @keyframes deal { 
-            from { transform: translateY(-50px) scale(0.5); opacity: 0; } 
-            to { transform: translateY(0) scale(1); opacity: 1; } 
+        /* Style spécifique pour le gros bouton à droite */
+        .btn-side-big {
+            width: 100%; height: 100%; min-height: 120px;
+            background: var(--gold); color: black;
+            border: none; border-radius: 15px;
+            font-size: 1.4rem; font-weight: 800;
+            text-transform: uppercase; cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+            transition: transform 0.1s;
+            padding: 20px; white-space: normal; line-height: 1.2;
+        }
+        .btn-side-big:active { transform: scale(0.98); }
+
+        /* --- BLACKJACK LAYOUT --- */
+        .bj-container { display: flex; gap: 15px; }
+        .bj-table-area { flex: 3; } /* La table prend plus de place */
+        .bj-side-panel { flex: 1; display: flex; flex-direction: column; justify-content: center; } /* Panneau latéral */
+
+        .bj-table-style {
+            background-color: #27ae60; border: 5px solid #3e2723; border-radius: 15px; padding: 15px;
+            box-shadow: inset 0 0 30px rgba(0,0,0,0.5);
         }
 
-        .suit { font-size: 1.5rem; }
-        .red { color: #c0392b; }
-        .black { color: #2c3e50; }
-
-        /* Dos de carte */
-        .card-back {
-            background: repeating-linear-gradient(
-                45deg,
-                #c0392b,
-                #c0392b 10px,
-                #e74c3c 10px,
-                #e74c3c 20px
-            );
-            border: 2px solid white;
-            display: flex; align-items: center; justify-content: center;
+        /* --- CARDS --- */
+        .hand-area { display: flex; justify-content: center; gap: 8px; min-height: 100px; margin: 10px 0; flex-wrap: wrap; perspective: 1000px; }
+        .card { 
+            width: 60px; height: 90px; background: white; border-radius: 6px; color: black; 
+            display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.3rem;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.4); position: relative;
+            animation: dealCard 0.4s ease-out;
         }
-        .card-back::after {
-            content: "BJ"; color: white; font-weight: bold; font-size: 1.5rem;
-            background: rgba(0,0,0,0.3); padding: 5px; border-radius: 50%;
-        }
+        @keyframes dealCard { from { transform: translateY(-50px) scale(0.8); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
+        
+        .card-hidden { background: #2c3e50; border: 2px solid #fff; color: transparent; }
+        .card-red { color: var(--red); }
+        .card-black { color: black; }
+        .card::after { content: attr(data-suit); position: absolute; top: 2px; right: 4px; font-size: 0.8rem; }
 
-        /* --- CONTRÔLES --- */
-        .controls {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 15px;
-        }
-        .btn-action {
-            padding: 15px; border: none; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer;
-            color: white; text-transform: uppercase;
-        }
-        .btn-hit { background: #27ae60; }
-        .btn-stand { background: #c0392b; }
-        .btn-double { background: #f39c12; color: black; }
-        .btn-split { background: #2980b9; }
-        .btn-action:disabled { opacity: 0.3; cursor: not-allowed; background: #555; color: #aaa; }
+        /* --- VITESSE --- */
+        .speed-card-box { height:260px; width:180px; background:white; border-radius:15px; margin:40px auto; display:flex; align-items:center; justify-content:center; font-size:6rem; color:black; font-weight:bold; box-shadow: 0 0 30px rgba(46,204,113,0.4); }
 
-        .hidden { display: none !important; }
+        /* --- MODALS --- */
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.96); z-index: 2000; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+        .modal-box { background: #1a1a1a; padding: 25px; border-radius: 15px; border: 1px solid var(--gold); text-align: center; width: 100%; max-width: 350px; }
 
-        /* --- PAPAYOO (Intouché) --- */
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #444; padding: 10px; text-align: center; }
+        /* --- PAPAYOO --- */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.85rem; }
+        th, td { border: 1px solid #444; padding: 8px; text-align: center; }
         .p-input { width: 50px; padding: 5px; text-align: center; background: #333; color: white; border: none; }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <h2 style="margin:0; color:var(--gold);">GAMES</h2>
-        <button class="nav-btn" onclick="goHome()">ACCUEIL</button>
-    </div>
-
-    <div id="home" class="screen active">
-        <div class="menu-card" onclick="setupBlackjack()">
-            <h2 style="margin:0; color:var(--gold);">🃏 BLACKJACK</h2>
-            <p>Jeu classique. Decks configurables.</p>
+    <div id="scr-home" class="screen active">
+        <h1 style="text-align: center; color: var(--gold); letter-spacing: 6px; margin: 50px 0;">MASTERY HUB</h1>
+        
+        <div class="glass" onclick="setupBlackjack()" style="border-left: 5px solid var(--gold);">
+            <h2 style="margin:0;">🃏 Blackjack Réel</h2>
+            <p style="color:#888; font-size:0.9rem;">Simulateur complet avec Dealer.</p>
         </div>
-        <div class="menu-card" onclick="setupPapayoo()" style="border-color: #3498db;">
-            <h2 style="margin:0; color: #3498db;">🎭 PAPAYOO</h2>
-            <p>Compteur de points.</p>
+
+        <div class="glass" onclick="setupSpeed()" style="border-left: 5px solid var(--green);">
+            <h2 style="margin:0;">⏱️ Vitesse Hi-Lo</h2>
+            <p style="color:#888; font-size:0.9rem;">Entraînement au comptage rapide.</p>
+        </div>
+
+        <div class="glass" onclick="setupPapayoo()" style="border-left: 5px solid var(--blue);">
+            <h2 style="margin:0;">🎭 Papayoo</h2>
+            <p style="color:#888; font-size:0.9rem;">Compteur de points classique.</p>
         </div>
     </div>
 
     <div id="bj-setup" class="screen">
-        <h3>Configuration Blackjack</h3>
-        <label>Nombre de Decks :</label>
-        <select id="deck-count" style="width:100%; padding:10px; margin:10px 0; background:#333; color:white;">
-            <option value="6">6 Decks (Standard)</option>
-            <option value="1">1 Deck</option>
-            <option value="2">2 Decks</option>
-        </select>
-        <button class="btn-action btn-hit" style="width:100%; margin-top:20px;" onclick="startBlackjack()">JOUER</button>
+        <div class="nav-header">
+            <button class="nav-btn" onclick="goHome()"><span>🏠</span>Accueil</button>
+            <h3 style="margin:0; color:var(--gold)">SETUP BJ</h3>
+            <div style="width:30px"></div>
+        </div>
+        <div class="glass" style="cursor:default;">
+            <label style="color:#aaa;">Nombre de Decks</label>
+            <select id="deck-count" style="width:100%; padding:10px; margin:10px 0; background:#333; color:white;">
+                <option value="6">6 Decks (Standard)</option>
+                <option value="1">1 Deck</option>
+                <option value="2">2 Decks</option>
+            </select>
+            <button class="btn-main btn-gold" onclick="startBlackjack()">JOUER</button>
+        </div>
     </div>
 
     <div id="bj-game" class="screen">
-        <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-            <button class="nav-btn" onclick="startBlackjack()">NOUVELLE MAIN</button>
-            <button class="nav-btn" style="border-color:#e74c3c; color:#e74c3c;" onclick="goHome()">QUITTER</button>
+        <div class="nav-header" style="margin-bottom: 10px;">
+             <button class="nav-btn" style="color:#e74c3c;" onclick="goHome()"><span>🚪</span>Quitter</button>
+             <h3 style="margin:0; color:var(--gold)">TABLE BLACJKACK</h3>
+             <div style="width:30px"></div>
         </div>
 
-        <div class="bj-table">
-            <div>
-                <div class="score-bubble">CROUPIER: <span id="d-score">?</span></div>
-                <div id="d-hand" class="hand-area"></div>
+        <div class="bj-container">
+            <div class="bj-table-area">
+                <div class="bj-table-style">
+                    <div style="text-align:center;">
+                        <div style="font-size:0.8rem; color:#eee; margin-bottom:5px; background:rgba(0,0,0,0.3); display:inline-block; padding:2px 8px; border-radius:10px;">CROUPIER: <span id="d-score" style="font-weight:bold;">?</span></div>
+                        <div id="d-hand" class="hand-area"></div>
+                    </div>
+
+                    <div id="game-msg" style="text-align:center; font-weight:bold; color:var(--gold); font-size:1.2rem; height:25px; margin: 5px 0; text-shadow: 1px 1px 2px black;"></div>
+
+                    <div style="text-align:center;">
+                        <div id="p-hand" class="hand-area"></div>
+                        <div style="font-size:0.8rem; color:#eee; margin-top:5px; background:rgba(0,0,0,0.3); display:inline-block; padding:2px 8px; border-radius:10px;">JOUEUR: <span id="p-score" style="font-weight:bold;">0</span></div>
+                    </div>
+                </div>
             </div>
 
-            <div id="game-msg" style="text-align:center; font-weight:bold; color:var(--gold); font-size:1.2rem; height:30px;"></div>
-
-            <div>
-                <div id="p-hand" class="hand-area"></div>
-                <div class="score-bubble">JOUEUR: <span id="p-score">0</span></div>
+            <div class="bj-side-panel">
+                <button class="btn-side-big" onclick="startBlackjack()">NOUVELLE MAIN</button>
             </div>
         </div>
 
-        <div class="controls" id="controls">
-            <button class="btn-action btn-hit" onclick="hit()">TIRER</button>
-            <button class="btn-action btn-stand" onclick="stand()">RESTER</button>
-            <button class="btn-action btn-double" id="btn-double" onclick="double()">DOUBLER</button>
-            <button class="btn-action btn-split" id="btn-split" onclick="split()">SPLIT</button>
+        <div class="controls" id="controls" style="display:flex; gap:10px; margin-top:15px;">
+            <button class="btn-action" style="background:#27ae60;" onclick="hit()">TIRER</button>
+            <button class="btn-action" style="background:#c0392b;" onclick="stand()">RESTER</button>
+            <button class="btn-action" id="btn-double" style="background:#f39c12; color:black;" onclick="double()">DOUBLER</button>
+            <button class="btn-action" id="btn-split" style="background:#2980b9;" onclick="split()">SPLIT</button>
         </div>
     </div>
 
+    <div id="speed-setup" class="screen">
+        <div class="nav-header">
+            <button class="nav-btn" onclick="goHome()"><span>🏠</span>Accueil</button>
+            <h3 style="margin:0; color:var(--green)">SETUP VITESSE</h3>
+            <div style="width:30px"></div>
+        </div>
+        <div class="glass" style="cursor:default;">
+            <label style="font-size:0.8rem; color:#aaa;">Vitesse (sec/carte)</label>
+            <input type="number" id="speed-sec" value="1.5" step="0.5" style="width:100%; padding:12px; background:#333; color:white; border:1px solid #444; border-radius:8px; margin:10px 0;">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-top:15px; color:#ccc;">
+                <span>Arrêt Aléatoire</span>
+                <input type="checkbox" id="speed-random" checked style="transform: scale(1.5);">
+            </div>
+            <button class="btn-main" style="background:var(--green); color:white;" onclick="initSpeedGame()">DÉMARRER</button>
+        </div>
+    </div>
+
+    <div id="speed-game" class="screen">
+        <div class="nav-header">
+            <button class="nav-btn" onclick="goHome()"><span>🏠</span>Quitter</button>
+            <h3 style="margin:0; color:var(--green)">HI-LO TRAINING</h3>
+            <button class="nav-btn" style="color:var(--red);" onclick="initSpeedGame()"><span>🔄</span>Reset</button>
+        </div>
+
+        <div id="speed-card-box" class="speed-card-box">?</div>
+        
+        <div id="speed-hint" style="text-align:center; color:var(--green); font-weight:bold; height:30px; margin-bottom:10px; font-size:1.5rem;"></div>
+
+        <button class="btn-main btn-gold" onclick="checkCount()">VÉRIFIER LE COMPTE (STOP)</button>
+        <button class="btn-main" style="background:#333; color:white; margin-top:10px;" onclick="toggleSpeedPause()">PAUSE / REPRENDRE</button>
+    </div>
+
     <div id="papayoo" class="screen">
-        <h3>Papayoo Tracker</h3>
+        <div class="nav-header">
+            <button class="nav-btn" onclick="goHome()"><span>🏠</span>Accueil</button>
+            <h3 style="margin:0; color:var(--blue)">PAPAYOO</h3>
+            <button class="nav-btn" onclick="setupPapayoo()"><span>🗑️</span>Reset</button>
+        </div>
         <div id="p-setup-area">
-            <input type="text" class="p-name" placeholder="Joueur 1" style="width:100%; margin-bottom:5px; padding:10px;">
-            <input type="text" class="p-name" placeholder="Joueur 2" style="width:100%; margin-bottom:5px; padding:10px;">
-            <input type="text" class="p-name" placeholder="Joueur 3" style="width:100%; margin-bottom:5px; padding:10px;">
-            <button class="btn-action btn-split" style="width:100%; margin-top:10px;" onclick="runPapayoo()">LANCER</button>
+            <input type="text" class="p-name" placeholder="Joueur 1" style="width:100%; margin-bottom:5px; padding:10px; background:#333; border:1px solid #444; color:white;">
+            <input type="text" class="p-name" placeholder="Joueur 2" style="width:100%; margin-bottom:5px; padding:10px; background:#333; border:1px solid #444; color:white;">
+            <input type="text" class="p-name" placeholder="Joueur 3" style="width:100%; margin-bottom:5px; padding:10px; background:#333; border:1px solid #444; color:white;">
+            <button class="btn-main" style="background:var(--blue);" onclick="runPapayoo()">LANCER</button>
         </div>
         <div id="p-play-area" class="hidden">
-            <button class="btn-action btn-double" style="width:100%;" onclick="rollColor()">🎲 TIRER COULEUR</button>
+            <button class="btn-main" style="background:#333;" onclick="rollColor()">🎲 TIRER COULEUR</button>
             <div id="p-color-res" style="text-align:center; font-weight:bold; margin:10px; font-size:1.2rem;">--</div>
-            <table id="p-table">
-                <thead><tr id="p-head"></tr></thead>
-                <tbody id="p-body"></tbody>
-                <tfoot><tr id="p-foot"></tr></tfoot>
-            </table>
-            <button class="btn-action btn-hit" style="width:100%; margin-top:10px;" onclick="savePRound()">VALIDER MANCHE</button>
+            <table id="p-table"><thead><tr id="p-head"></tr></thead><tbody id="p-body"></tbody><tfoot><tr id="p-foot"></tr></tfoot></table>
+            <button class="btn-main" style="background:var(--blue); margin-top:10px;" onclick="savePRound()">VALIDER MANCHE</button>
+        </div>
+    </div>
+
+    <div id="modal-ana" class="modal">
+        <div class="modal-box">
+            <h2 style="color:var(--gold); margin-top:0;">VÉRIFICATION</h2>
+            <div class="glass" style="cursor:default;">
+                <p style="color:#888; margin:0;">RUNNING COUNT</p>
+                <div id="ana-rc" style="font-size:4rem; font-weight:bold; color:var(--gold);">0</div>
+                <hr style="border:0; border-top:1px solid #333; margin:15px 0;">
+                <p style="color:#888; margin:0;">TRUE COUNT Estimation</p>
+                <div id="ana-tc" style="font-size:2rem; font-weight:bold;">0</div>
+                <p style="font-size:0.7rem; color:#666;">(Basé sur decks restants)</p>
+            </div>
+            <button class="btn-main btn-gold" onclick="closeModal()">FERMER</button>
         </div>
     </div>
 
     <script>
-        // --- NAVIGATION ---
+        // --- GLOBAL & NAV ---
+        let deck = [], rc = 0, speedTimer = null;
+        let pHand = [], dHand = [], gameOver = false;
+        let pPlayers = [];
+
         function showScreen(id) {
+            stopAll();
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
         }
         function goHome() { showScreen('home'); }
         function setupBlackjack() { showScreen('bj-setup'); }
-        function setupPapayoo() { showScreen('papayoo'); }
+        function setupSpeed() { showScreen('speed-setup'); }
+        function setupPapayoo() { showScreen('papayoo'); document.getElementById('p-setup-area').classList.remove('hidden'); document.getElementById('p-play-area').classList.add('hidden'); }
+        function stopAll() { clearInterval(speedTimer); speedTimer = null; closeModal(); }
+        function closeModal() { document.getElementById('modal-ana').style.display = 'none'; }
 
-        // --- BLACKJACK ENGINE ---
-        let deck = [];
-        let pHand = [];
-        let dHand = [];
-        let gameOver = false;
-
-        function createDeck() {
-            const n = parseInt(document.getElementById('deck-count').value);
+        // --- DECK COMMON ---
+        function createDeck(n) {
             const ranks = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
-            const suits = ['♠','♥','♦','♣'];
-            deck = [];
-            for(let i=0; i<n; i++) {
-                for(let s of suits) {
-                    for(let r of ranks) {
-                        deck.push({ r, s });
-                    }
-                }
-            }
-            // Mélange
-            for (let i = deck.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [deck[i], deck[j]] = [deck[j], deck[i]];
-            }
+            const suits = ['♠','♥','♦','♣']; deck = [];
+            for(let i=0; i<n; i++) for(let s of suits) for(let r of ranks) deck.push({r, s});
+            for (let i = deck.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [deck[i], deck[j]] = [deck[j], deck[i]]; }
+            rc = 0;
+        }
+        function getHiLo(r) {
+            if(['2','3','4','5','6'].includes(r)) return 1;
+            if(['10','J','Q','K','A'].includes(r)) return -1;
+            return 0;
         }
 
+        // --- BLACKJACK ENGINE ---
         async function startBlackjack() {
-            if(deck.length < 15) createDeck();
-            
+            if(deck.length < 15) createDeck(parseInt(document.getElementById('deck-count').value) || 6);
             showScreen('bj-game');
-            pHand = [];
-            dHand = [];
-            gameOver = false;
+            pHand = []; dHand = []; gameOver = false;
             
-            // UI Reset
-            document.getElementById('p-hand').innerHTML = '';
-            document.getElementById('d-hand').innerHTML = '';
+            document.getElementById('p-hand').innerHTML = ''; document.getElementById('d-hand').innerHTML = '';
             document.getElementById('game-msg').innerText = '';
-            document.getElementById('controls').classList.add('hidden'); // On cache les boutons pendant la distrib
+            document.getElementById('controls').classList.add('hidden');
             updateScores();
 
-            // Distribution animée
-            await dealCard('p', true);
-            await dealCard('d', true); // Visible
-            await dealCard('p', true);
-            await dealCard('d', false); // Cachée
+            await dealCard('p', true); await dealCard('d', true);
+            await dealCard('p', true); await dealCard('d', false);
 
-            // Fin distribution
             document.getElementById('controls').classList.remove('hidden');
-            
-            checkNaturalBJ();
-            updateButtons();
+            checkNaturalBJ(); updateButtons();
         }
 
         function createCardDOM(card, isHidden) {
             const el = document.createElement('div');
-            if(isHidden) {
-                el.className = 'card card-back';
-            } else {
+            if(isHidden) { el.className = 'card card-hidden'; }
+            else {
                 el.className = 'card';
-                const isRed = (card.s === '♥' || card.s === '♦');
-                el.classList.add(isRed ? 'red' : 'black');
-                
-                el.innerHTML = `
-                    <div style="font-size:1rem;">${card.r}</div>
-                    <div class="suit">${card.s}</div>
-                `;
+                if(card.s === '♥' || card.s === '♦') el.classList.add('card-red'); else el.classList.add('card-black');
+                el.innerHTML = `<div>${card.r}</div><div style="font-size:1.5rem;">${card.s}</div>`;
+                el.setAttribute('data-suit', card.s);
             }
             return el;
         }
@@ -316,166 +290,101 @@
                 setTimeout(() => {
                     const c = deck.pop();
                     const el = createCardDOM(c, !visible);
-                    
-                    if(target === 'p') {
-                        pHand.push(c);
-                        document.getElementById('p-hand').appendChild(el);
-                    } else {
-                        dHand.push(c);
-                        document.getElementById('d-hand').appendChild(el);
-                    }
-                    updateScores();
-                    resolve();
-                }, 400); // Vitesse distribution
+                    if(target === 'p') { pHand.push(c); document.getElementById('p-hand').appendChild(el); }
+                    else { dHand.push(c); document.getElementById('d-hand').appendChild(el); }
+                    updateScores(); resolve();
+                }, 350);
             });
         }
 
         function getScore(hand) {
-            let score = 0;
-            let aces = 0;
-            hand.forEach(c => {
-                if(c.r === 'A') aces++;
-                else if(['K','Q','J','10'].includes(c.r)) score += 10;
-                else score += parseInt(c.r);
-            });
-            for(let i=0; i<aces; i++) {
-                if(score + 11 <= 21) score += 11;
-                else score += 1;
-            }
-            return score;
+            let s=0, a=0;
+            hand.forEach(c => { if(c.r==='A')a++; else if(['K','Q','J','10'].includes(c.r))s+=10; else s+=parseInt(c.r); });
+            for(let i=0; i<a; i++) s+=(s+11<=21)?11:1; return s;
         }
 
         function updateScores() {
             document.getElementById('p-score').innerText = getScore(pHand);
-            
-            // Score Croupier : On montre seulement la 1ère carte si le jeu est en cours
             if(dHand.length > 0) {
                 if(!gameOver && dHand.length === 2) {
-                    // Calcul savant pour n'afficher que la valeur de la carte visible
-                    const c = dHand[0];
-                    let val = 0;
-                    if(c.r === 'A') val=11; else if(['K','Q','J','10'].includes(c.r)) val=10; else val=parseInt(c.r);
-                    document.getElementById('d-score').innerText = val;
-                } else {
-                    document.getElementById('d-score').innerText = getScore(dHand);
-                }
+                    const c=dHand[0]; let v=0; if(c.r==='A')v=11; else if(['K','Q','J','10'].includes(c.r))v=10; else v=parseInt(c.r);
+                    document.getElementById('d-score').innerText = v;
+                } else { document.getElementById('d-score').innerText = getScore(dHand); }
             }
         }
 
         function updateButtons() {
-            if(gameOver) {
-                document.getElementById('controls').classList.add('hidden');
-                return;
-            }
-            // Double : Seulement si 2 cartes
+            if(gameOver) { document.getElementById('controls').classList.add('hidden'); return; }
             document.getElementById('btn-double').disabled = (pHand.length !== 2);
-            
-            // Split : Seulement si paire (valeur faciale stricte)
-            const canSplit = (pHand.length === 2 && pHand[0].r === pHand[1].r);
-            document.getElementById('btn-split').disabled = !canSplit;
+            document.getElementById('btn-split').disabled = !(pHand.length === 2 && pHand[0].r === pHand[1].r);
         }
 
-        function checkNaturalBJ() {
-            if(getScore(pHand) === 21) {
-                document.getElementById('game-msg').innerText = "BLACKJACK !";
-                endGame();
-            }
-        }
-
-        // Actions
-        async function hit() {
-            await dealCard('p', true);
-            if(getScore(pHand) > 21) {
-                document.getElementById('game-msg').innerText = "BUST !";
-                endGame();
-            } else {
-                updateButtons(); // Désactive Double/Split après un hit
-            }
-        }
-
-        async function double() {
-            await dealCard('p', true);
-            endGame(); // Après double, c'est fini pour le joueur
-        }
-
-        function stand() {
-            endGame();
-        }
-
-        function split() {
-            alert("Le Split nécessite une architecture multi-mains complexe. Pour cet entraînement simple, cette option est désactivée.");
-        }
+        function checkNaturalBJ() { if(getScore(pHand) === 21) { document.getElementById('game-msg').innerText = "BLACKJACK !"; endGame(); }}
+        async function hit() { await dealCard('p', true); if(getScore(pHand)>21) { document.getElementById('game-msg').innerText="BUST !"; endGame(); } else updateButtons(); }
+        async function double() { await dealCard('p', true); endGame(); }
+        function stand() { endGame(); }
+        function split() { alert("Split non disponible dans ce simulateur simple."); }
 
         async function endGame() {
-            gameOver = true;
-            document.getElementById('controls').classList.add('hidden');
-
-            // 1. Révéler la carte cachée du dealer
-            const dealerContainer = document.getElementById('d-hand');
-            const hiddenCardEl = dealerContainer.children[1];
-            // On remplace le visuel
-            const realCard = dHand[1];
-            const newEl = createCardDOM(realCard, false);
-            dealerContainer.replaceChild(newEl, hiddenCardEl);
+            gameOver = true; document.getElementById('controls').classList.add('hidden');
+            const dCont = document.getElementById('d-hand'); const hid = dCont.children[1];
+            if(hid) dCont.replaceChild(createCardDOM(dHand[1], false), hid);
             updateScores();
-
-            // 2. Dealer joue si joueur pas bust
-            if(getScore(pHand) <= 21) {
-                while(getScore(dHand) < 17) {
-                    await dealCard('d', true);
-                }
-            }
-
-            // 3. Résultat
-            const p = getScore(pHand);
-            const d = getScore(dHand);
-            let msg = "";
-
-            if(p > 21) msg = "PERDU (Bust)";
-            else if(d > 21) msg = "GAGNÉ (Dealer Bust)";
-            else if(p > d) msg = "GAGNÉ";
-            else if(p < d) msg = "PERDU";
-            else msg = "ÉGALITÉ (Push)";
-
+            if(getScore(pHand) <= 21) { while(getScore(dHand) < 17) await dealCard('d', true); }
+            const p=getScore(pHand), d=getScore(dHand); let msg="";
+            if(p>21)msg="PERDU (Bust)"; else if(d>21)msg="GAGNÉ (Dealer Bust)"; else if(p>d)msg="GAGNÉ"; else if(p<d)msg="PERDU"; else msg="ÉGALITÉ";
             document.getElementById('game-msg').innerText = msg;
         }
 
+        // --- SPEED VITESSE ENGINE ---
+        function initSpeedGame() {
+            createDeck(6); showScreen('speed-game'); resumeSpeed();
+        }
+        function resumeSpeed() {
+            const spd = parseFloat(document.getElementById('speed-sec').value)*1000;
+            const rnd = document.getElementById('speed-random').checked;
+            document.getElementById('speed-hint').innerText = "";
+            speedTimer = setInterval(() => {
+                if(deck.length===0) { checkCount(); return; }
+                if(rnd && Math.random()<0.12) { clearInterval(speedTimer); speedTimer=null; document.getElementById('speed-hint').innerText="ARRÊT ALÉATOIRE !"; document.getElementById('speed-card-box').innerText="???"; return; }
+                const c = deck.pop(); rc += getHiLo(c.r);
+                const box = document.getElementById('speed-card-box'); box.innerText = c.r;
+                box.style.color = (c.s==='♥'||c.s==='♦') ? 'var(--red)' : 'black';
+                const h=getHiLo(c.r); document.getElementById('speed-hint').innerText = (h>0?'+'+h:h);
+            }, spd);
+        }
+        function toggleSpeedPause() { if(speedTimer){clearInterval(speedTimer); speedTimer=null;} else resumeSpeed(); }
+        function checkCount() {
+            clearInterval(speedTimer); speedTimer=null;
+            document.getElementById('modal-ana').style.display='flex';
+            const dr = Math.max(0.5, deck.length/52);
+            document.getElementById('ana-rc').innerText = (rc>0?'+':(rc<0?'':''))+rc;
+            document.getElementById('ana-tc').innerText = Math.floor(rc/dr);
+        }
 
-        // --- PAPAYOO (Intouché) ---
-        let pPlayers = [];
+        // --- PAPAYOO ---
         function runPapayoo() {
-            pPlayers = Array.from(document.querySelectorAll('.p-name'))
-                .map(i => i.value.trim()).filter(n=>n)
-                .map(n => ({name:n, scores:[], total:0}));
-            if(pPlayers.length===0) return alert("Noms ?");
-            document.getElementById('p-setup-area').classList.add('hidden');
-            document.getElementById('p-play-area').classList.remove('hidden');
-            renderPTable();
+            pPlayers = Array.from(document.querySelectorAll('.p-name')).map(i=>i.value.trim()).filter(n=>n).map(n=>({name:n,scores:[],total:0}));
+            if(pPlayers.length===0) return alert("Noms?");
+            document.getElementById('p-setup-area').classList.add('hidden'); document.getElementById('p-play-area').classList.remove('hidden'); renderPTable();
         }
         function renderPTable() {
             const h=document.getElementById('p-head'), b=document.getElementById('p-body'), f=document.getElementById('p-foot');
             h.innerHTML='<th>#</th>'+pPlayers.map(p=>`<th>${p.name}</th>`).join('');
-            let r=''; 
-            // Rows existing
-            const rounds = pPlayers[0].scores.length;
+            let r=''; const rounds=pPlayers[0].scores.length;
             for(let i=0; i<rounds; i++) r+=`<tr><td>${i+1}</td>${pPlayers.map(p=>`<td>${p.scores[i]}</td>`).join('')}</tr>`;
-            // Input row
             r+=`<tr><td>New</td>${pPlayers.map((p,i)=>`<td><input type="number" class="p-input" id="pi-${i}"></td>`).join('')}</tr>`;
-            b.innerHTML=r;
-            f.innerHTML='<td>TOT</td>'+pPlayers.map(p=>`<td>${p.total}</td>`).join('');
+            b.innerHTML=r; f.innerHTML='<td>TOT</td>'+pPlayers.map(p=>`<td>${p.total}</td>`).join('');
         }
         function savePRound() {
             const vals=pPlayers.map((_,i)=>parseInt(document.getElementById(`pi-${i}`).value)||0);
             if(vals.reduce((a,b)=>a+b,0)!==250) return alert("Total 250 requis");
-            pPlayers.forEach((p,i)=>{p.scores.push(vals[i]); p.total+=vals[i]});
-            renderPTable();
+            pPlayers.forEach((p,i)=>{p.scores.push(vals[i]); p.total+=vals[i]}); renderPTable();
         }
         function rollColor() {
-            const c=['♥','♦','♣','♠'], cl=['#e74c3c','#e67e22','#27ae60','#2980b9'];
-            const r=Math.floor(Math.random()*4);
+            const c=['♥','♦','♣','♠'], cl=['#e74c3c','#e67e22','#27ae60','#2980b9'], r=Math.floor(Math.random()*4);
             const el=document.getElementById('p-color-res'); el.innerText="7 de "+c[r]; el.style.color=cl[r];
         }
-
     </script>
 </body>
 </html>
