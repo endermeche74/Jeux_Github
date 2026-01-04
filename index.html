@@ -2,352 +2,452 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Mastery Pro - Hub Edition</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Hi-Lo Trainer - Distributeur</title>
     <style>
         :root {
-            --bg: #0a0a0a; --panel: #141414; --gold: #d4af37; --text: #ffffff;
-            --green: #2ecc71; --red: #e74c3c; --blue: #3498db; --grey: #2a2a2a;
+            --bg-color: #121212;
+            --card-bg: #ffffff;
+            --accent-gold: #f1c40f;
+            --text-color: #ecf0f1;
+            --btn-green: #27ae60;
+            --btn-red: #c0392b;
+            --btn-blue: #2980b9;
         }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; overflow-x: hidden; }
-        .screen { width: 100%; max-width: 500px; padding: 20px; margin: auto; box-sizing: border-box; display: none; min-height: 100vh; }
-        .active { display: block; }
 
-        /* NAV & UI */
-        .nav-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .glass { background: var(--panel); border: 1px solid #333; border-radius: 15px; padding: 15px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-        .btn-nav { background: var(--grey); color: white; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.75rem; }
-        .btn-main { width: 100%; padding: 16px; border-radius: 12px; border: none; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 0.9rem; margin-top: 10px; transition: 0.2s; }
-
-        .btn-gold { background: var(--gold); color: black; }
-        .btn-action { background: #222; color: white; border: 1px solid #444; flex: 1; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.7rem; }
-        .btn-action:disabled { opacity: 0.15; pointer-events: none; }
-
-        /* CARDS */
-        .hand-container { display: flex; justify-content: center; gap: 8px; min-height: 100px; margin: 10px 0; flex-wrap: wrap; }
-        .card { 
-            width: 60px; height: 90px; background: white; border-radius: 8px; color: black; 
-            display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem;
-            box-shadow: 0 5px 10px rgba(0,0,0,0.4); animation: deal 0.3s ease-out; position: relative;
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
         }
-        @keyframes deal { from { transform: translateY(-40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        .card-back { background: #333; border: 2px solid #555; color: transparent; }
 
-        /* MODALS */
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 25px; box-sizing: border-box; }
-        .modal-content { max-width: 400px; width: 100%; }
+        /* --- HEADER & RÈGLES --- */
+        header {
+            width: 100%;
+            padding: 10px 20px;
+            background: #1e1e1e;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+            box-sizing: border-box;
+        }
 
-        /* PAPAYOO */
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.85rem; }
-        th, td { border: 1px solid #333; padding: 8px; text-align: center; }
+        h1 { margin: 0; font-size: 1.2rem; color: var(--accent-gold); letter-spacing: 2px; }
+
+        .btn-rules {
+            background: transparent;
+            border: 1px solid var(--text-color);
+            color: var(--text-color);
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 0.8rem;
+        }
+
+        /* --- ÉCRANS --- */
+        .screen {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            max-width: 500px;
+            padding: 20px;
+            box-sizing: border-box;
+        }
         .hidden { display: none !important; }
+
+        /* --- SETUP FORM --- */
+        .setup-box {
+            background: #1e1e1e;
+            padding: 25px;
+            border-radius: 15px;
+            width: 100%;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            border: 1px solid #333;
+        }
+
+        label { display: block; margin-top: 15px; color: #aaa; font-size: 0.9rem; }
+        
+        select, input {
+            width: 100%;
+            padding: 12px;
+            margin-top: 5px;
+            background: #2c3e50;
+            border: none;
+            color: white;
+            border-radius: 8px;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+
+        .switch-container {
+            display: flex; justify-content: space-between; align-items: center; margin-top: 20px;
+        }
+        
+        /* Switch Toggle */
+        .switch { position: relative; display: inline-block; width: 50px; height: 24px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #444; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--btn-green); }
+        input:checked + .slider:before { transform: translateX(26px); }
+
+        .btn-start {
+            width: 100%; padding: 15px; margin-top: 30px;
+            background: var(--accent-gold); color: black; font-weight: bold;
+            border: none; border-radius: 10px; font-size: 1.1rem; cursor: pointer;
+        }
+
+        /* --- GAME AREA --- */
+        .card-display {
+            width: 200px;
+            height: 300px;
+            background: var(--card-bg);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 6rem;
+            font-weight: bold;
+            color: black;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+            position: relative;
+            margin-bottom: 30px;
+        }
+        
+        .card-suit-top { position: absolute; top: 15px; left: 15px; font-size: 2rem; }
+        .card-suit-btm { position: absolute; bottom: 15px; right: 15px; font-size: 2rem; transform: rotate(180deg); }
+        .red-card { color: var(--btn-red); }
+
+        .controls { width: 100%; display: flex; gap: 10px; }
+        .btn-ctrl {
+            flex: 1; padding: 15px; border: none; border-radius: 8px;
+            font-weight: bold; font-size: 1rem; cursor: pointer; color: white;
+        }
+        .btn-pause { background: var(--btn-blue); }
+        .btn-trash { background: var(--btn-red); max-width: 60px; font-size: 1.5rem; }
+
+        /* --- MODALS (Overlay) --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 1000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-box {
+            background: #222;
+            padding: 30px;
+            border-radius: 15px;
+            border: 2px solid var(--accent-gold);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .stat-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0;
+        }
+        .stat-item { background: #333; padding: 10px; border-radius: 8px; }
+        .stat-val { font-size: 2rem; font-weight: bold; color: var(--accent-gold); }
+        .stat-label { font-size: 0.8rem; color: #aaa; text-transform: uppercase; }
+
+        /* Tableau règles */
+        .rules-table { width: 100%; border-collapse: collapse; margin-top: 10px; color: #ccc; }
+        .rules-table td { border: 1px solid #444; padding: 8px; text-align: center; }
+        .val-plus { color: var(--btn-green); font-weight: bold; }
+        .val-minus { color: var(--btn-red); font-weight: bold; }
+
     </style>
 </head>
 <body>
 
-    <div id="scr-home" class="screen active">
-        <h1 style="text-align: center; color: var(--gold); letter-spacing: 8px; margin: 60px 0;">MASTERY PRO</h1>
+    <header>
+        <h1>Hi-Lo Trainer</h1>
+        <button class="btn-rules" onclick="toggleRules()">Règles</button>
+    </header>
+
+    <div id="setup-screen" class="screen">
+        <div class="setup-box">
+            <h2 style="margin-top:0; color:var(--accent-gold);">Configuration</h2>
+            
+            <label>Nombre de paquets (Decks)</label>
+            <select id="deck-count">
+                <option value="1">1 Deck</option>
+                <option value="2">2 Decks</option>
+                <option value="6" selected>6 Decks (Casino)</option>
+                <option value="8">8 Decks</option>
+            </select>
+
+            <label>Vitesse (secondes par carte)</label>
+            <input type="number" id="speed" value="2.0" step="0.5" min="0.5">
+
+            <div class="switch-container">
+                <span style="color:white; font-weight:bold;">Arrêt Aléatoire</span>
+                <label class="switch">
+                    <input type="checkbox" id="random-stop-toggle" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <p style="font-size:0.8rem; color:#666; margin-top:5px;">Si activé, le jeu se mettra en pause tout seul pour que vous deviniez le compte.</p>
+
+            <button class="btn-start" onclick="startGame()">LANCER</button>
+        </div>
+    </div>
+
+    <div id="game-screen" class="screen hidden">
+        <div style="margin-bottom: 20px; color: #888;">Cartes restantes: <span id="cards-left">--</span></div>
         
-        <div class="glass" onclick="switchMode('scr-bj')" style="cursor:pointer; border-left: 5px solid var(--gold);">
-            <h2 style="margin:0;">🃏 Blackjack Pro</h2>
-            <p style="color:#888; font-size:0.85rem;">Split, Double, Assurance & Stratégie.</p>
+        <div id="card-display" class="card-display">
+            <div class="card-suit-top"></div>
+            <div class="card-val">?</div>
+            <div class="card-suit-btm"></div>
         </div>
 
-        <div class="glass" onclick="switchMode('scr-speed')" style="cursor:pointer; border-left: 5px solid var(--green);">
-            <h2 style="margin:0;">⏱️ Comptage Vitesse</h2>
-            <p style="color:#888; font-size:0.85rem;">Entraînement Hi-Lo avec arrêt aléatoire.</p>
-        </div>
-
-        <div class="glass" onclick="switchMode('scr-pap')" style="cursor:pointer; border-left: 5px solid var(--blue);">
-            <h2 style="margin:0;">🎭 Papayoo</h2>
-            <p style="color:#888; font-size:0.85rem;">Compteur de points classique.</p>
+        <div class="controls">
+            <button class="btn-ctrl btn-pause" onclick="manualPause()">PAUSE</button>
+            <button class="btn-ctrl btn-trash" onclick="resetGame()">🗑️</button>
         </div>
     </div>
 
-    <div id="scr-bj" class="screen">
-        <div class="nav-header">
-            <button class="btn-nav" onclick="goHome()">🏠 HOME</button>
-            <button class="btn-nav" onclick="openRules('bj')">ℹ️ RÈGLES</button>
-            <button class="btn-nav" style="color:var(--red)" onclick="initBJ()">🔄 NOUVEAU</button>
-        </div>
-
-        <div id="bj-dealer-zone">
-            <div style="text-align:center; font-size:0.75rem; color:#888;">DEALER <span id="bj-d-val" class="hidden"></span></div>
-            <div id="bj-d-hand" class="hand-container"></div>
-        </div>
-
-        <div id="bj-advice" style="text-align:center; color:var(--gold); font-size:0.8rem; min-height:20px; margin:10px 0;"></div>
-
-        <div id="bj-player-zone"></div>
-
-        <div id="bj-controls" class="glass" style="display:flex; gap:5px; margin-top:15px;">
-            <button class="btn-action" id="btn-hit" onclick="bjHit()">TIRER</button>
-            <button class="btn-action" id="btn-stand" onclick="bjStand()">RESTER</button>
-            <button class="btn-action" id="btn-double" onclick="bjDouble()">DOUBLER</button>
-            <button class="btn-action" id="btn-split" onclick="bjSplit()">SPLIT</button>
-        </div>
-
-        <button id="btn-next-hand" class="btn-main btn-gold hidden" onclick="startNewHand()">MAIN SUIVANTE</button>
-        <button class="btn-main" style="background:transparent; color:#555;" onclick="showAnalysis()">ANALYSE COMPTE</button>
-    </div>
-
-    <div id="scr-speed" class="screen">
-        <div class="nav-header">
-            <button class="btn-nav" onclick="goHome()">🏠 HOME</button>
-            <button class="btn-nav" onclick="openRules('speed')">ℹ️ RÈGLES</button>
-        </div>
-
-        <div id="speed-setup" class="glass">
-            <label style="font-size:0.8rem;">VITESSE (SEC/CARTE)</label>
-            <input type="number" id="speed-sec" value="1.5" step="0.1" style="width:100%; padding:12px; background:#222; color:white; border:1px solid #444; border-radius:8px; margin:10px 0;">
-            <div style="display:flex; justify-content:space-between; margin:15px 0;">
-                <span>Arrêt Aléatoire</span>
-                <input type="checkbox" id="speed-rand-stop" checked>
+    <div id="pause-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h2 id="pause-title" style="color:var(--accent-gold); margin-top:0;">PAUSE</h2>
+            
+            <div id="hidden-stats-msg" style="margin-bottom: 20px; font-size: 1.1rem;">
+                Le jeu est en pause.<br>
+                <strong>Quel est le compte ?</strong>
             </div>
-            <button class="btn-main btn-gold" onclick="startSpeed()">DÉMARRER</button>
-        </div>
 
-        <div id="speed-play" class="hidden" style="text-align:center;">
-            <div id="speed-card-box" style="height:260px; width:180px; background:white; border-radius:15px; margin:40px auto; display:flex; align-items:center; justify-content:center; font-size:6rem; color:black; font-weight:bold; box-shadow: 0 0 30px rgba(46,204,113,0.4);">?</div>
-            <div id="speed-val-hint" style="color:var(--green); font-weight:bold; height:20px; margin-bottom:20px;"></div>
-            <button class="btn-main btn-gold" onclick="showAnalysis()">VÉRIFIER LE COMPTE</button>
+            <div id="stats-container" class="stat-grid hidden">
+                <div class="stat-item">
+                    <div class="stat-label">Running Count</div>
+                    <div class="stat-val" id="rc-val">0</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">True Count</div>
+                    <div class="stat-val" id="tc-val">0</div>
+                </div>
+            </div>
+
+            <button id="btn-reveal" class="btn-start" style="background:var(--btn-blue); color:white; margin-top:0;" onclick="revealStats()">VÉRIFIER LA VALEUR</button>
+            <button id="btn-resume" class="btn-start hidden" style="margin-top:15px;" onclick="resumeGame()">REPRENDRE LA DISTRIBUTION</button>
         </div>
     </div>
 
-    <div id="scr-pap" class="screen">
-        <div class="nav-header">
-            <button class="btn-nav" onclick="goHome()">🏠 HOME</button>
-        </div>
-        <div class="glass">
-            <h3 style="color:var(--blue); margin-top:0;">🎭 Papayoo Points</h3>
-            <table id="pap-table">
-                <thead><tr id="pap-head"><th>Rd</th></tr></thead>
-                <tbody id="pap-body"></tbody>
-                <tfoot><tr id="pap-foot"><td>TOT</td></tr></tfoot>
+    <div id="rules-modal" class="modal-overlay">
+        <div class="modal-box" style="text-align: left;">
+            <h2 style="color:var(--accent-gold); text-align:center; margin-top:0;">Règles Hi-Lo</h2>
+            
+            <p>Le but est de suivre le ratio cartes hautes / cartes basses.</p>
+            
+            <table class="rules-table">
+                <tr>
+                    <td>2, 3, 4, 5, 6</td>
+                    <td class="val-plus">+1</td>
+                    <td>Cartes Basses</td>
+                </tr>
+                <tr>
+                    <td>7, 8, 9</td>
+                    <td>0</td>
+                    <td>Neutres</td>
+                </tr>
+                <tr>
+                    <td>10, J, Q, K, A</td>
+                    <td class="val-minus">-1</td>
+                    <td>Cartes Hautes</td>
+                </tr>
             </table>
-        </div>
-    </div>
 
-    <div id="mod-rules" class="modal">
-        <div class="modal-content">
-            <h2 id="mod-rules-title" style="color:var(--gold); border-bottom: 1px solid #333; padding-bottom: 10px;">RÈGLES</h2>
-            <div id="mod-rules-text" class="glass" style="font-size:0.85rem; line-height:1.6; color:#ccc; max-height:60vh; overflow-y:auto;"></div>
-            <button class="btn-main btn-gold" onclick="closeModal('mod-rules')">FERMER</button>
-        </div>
-    </div>
-
-    <div id="mod-ana" class="modal">
-        <div class="modal-content" style="text-align:center;">
-            <h2 style="color:var(--gold);">VÉRIFICATION</h2>
-            <div class="glass">
-                <p style="color:#888; margin:0;">RUNNING COUNT</p>
-                <div id="ana-rc" style="font-size:5rem; font-weight:bold; color:var(--gold);">0</div>
-                <hr style="border:0; border-top:1px solid #333; margin:15px 0;">
-                <p style="color:#888; margin:0;">TRUE COUNT</p>
-                <div id="ana-tc" style="font-size:2rem; font-weight:bold;">0</div>
+            <div style="margin-top: 20px; background: #333; padding: 10px; border-radius: 8px;">
+                <strong>True Count (Vrai Compte) :</strong><br>
+                C'est le Running Count divisé par le nombre de paquets restants dans le sabot.
+                <div style="text-align: center; margin-top:5px; color:var(--accent-gold); font-weight:bold;">TC = RC / Decks</div>
             </div>
-            <button class="btn-main btn-gold" onclick="closeModal('mod-ana')">REPRENDRE</button>
+
+            <button class="btn-start" style="background:#444; color:white; margin-top:20px;" onclick="toggleRules()">FERMER</button>
         </div>
     </div>
 
     <script>
-        let deck = [], rc = 0, speedTimer = null;
-        let bjHands = [], bjDealer = [], bjIdx = 0, bjOver = false;
+        // --- VARIABLES GLOBALES ---
+        let deck = [];
+        let runningCount = 0;
+        let gameInterval = null;
+        let isPaused = false;
 
-        // --- NAVIGATION ---
-        function switchMode(id) {
-            stopAllLogic();
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            if(id === 'scr-bj') initBJ();
-        }
-
-        function goHome() { switchMode('scr-home'); }
-
-        function stopAllLogic() {
-            clearInterval(speedTimer);
-            speedTimer = null;
-            closeModal('mod-ana');
-            closeModal('mod-rules');
-        }
-
-        // --- DECK LOGIC ---
-        function buildDeck() {
-            const v = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
-            const s = ['♠','♥','♦','♣']; deck = [];
-            for(let i=0; i<6; i++) for(let suit of s) for(let val of v) deck.push({v:val, s:suit});
-            deck.sort(() => Math.random() - 0.5);
-            rc = 0;
-        }
-
-        function updateHiLo(cardValue) {
-            if(['2','3','4','5','6'].includes(cardValue)) rc++;
-            if(['10','J','Q','K','A'].includes(cardValue)) rc--;
-        }
-
-        // --- BLACKJACK GAME ---
-        function initBJ() {
-            buildDeck();
-            startNewHand();
-        }
-
-        async function startNewHand() {
-            if(deck.length < 20) buildDeck();
-            bjHands = [{ cards: [], status: 'play' }];
-            bjDealer = []; bjIdx = 0; bjOver = false;
+        // --- GESTION DU DECK ---
+        function createDeck(numDecks) {
+            const values = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+            const suits = ['♠','♥','♦','♣'];
+            deck = [];
             
-            document.getElementById('btn-next-hand').classList.add('hidden');
-            document.getElementById('bj-controls').classList.remove('hidden');
-            document.getElementById('bj-d-val').classList.add('hidden');
-            document.getElementById('bj-advice').innerText = "";
-
-            await dealBJ('p', 0);
-            await dealBJ('d'); // Visible
-            await dealBJ('p', 0);
-            await dealBJ('d'); // Hidden
-            
-            checkNaturalBJ();
-            updateBJUI();
-        }
-
-        async function dealBJ(target, idx=0) {
-            return new Promise(res => {
-                setTimeout(() => {
-                    const c = deck.pop();
-                    updateHiLo(c.v);
-                    if(target === 'p') bjHands[idx].cards.push(c);
-                    else bjDealer.push(c);
-                    updateBJUI();
-                    res();
-                }, 400);
-            });
-        }
-
-        function checkNaturalBJ() {
-            if(calc(bjHands[0].cards) === 21) {
-                bjOver = true;
-                finishDealer();
-            }
-        }
-
-        function updateBJUI() {
-            const dZone = document.getElementById('bj-d-hand'); dZone.innerHTML = "";
-            bjDealer.forEach((c, i) => {
-                const div = document.createElement('div');
-                div.className = (i === 1 && !bjOver) ? "card card-back" : "card";
-                div.innerText = c.v;
-                if(c.s === '♥' || c.s === '♦') div.style.color = "var(--red)";
-                dZone.appendChild(div);
-            });
-
-            const pZone = document.getElementById('bj-player-zone'); pZone.innerHTML = "";
-            bjHands.forEach((h, i) => {
-                const glass = document.createElement('div');
-                glass.className = "glass";
-                if(i === bjIdx && !bjOver) glass.style.borderColor = "var(--gold)";
-                glass.innerHTML = `<div style="font-size:0.7rem;">MAIN ${i+1} (${calc(h.cards)})</div><div class="hand-container" id="p-hand-${i}"></div>`;
-                pZone.appendChild(glass);
-                h.cards.forEach(c => {
-                    const div = document.createElement('div'); div.className = "card"; div.innerText = c.v;
-                    if(c.s === '♥' || c.s === '♦') div.style.color = "var(--red)";
-                    document.getElementById(`p-hand-${i}`).appendChild(div);
-                });
-            });
-
-            const cur = bjHands[bjIdx];
-            document.getElementById('btn-split').disabled = !(cur.cards.length === 2 && cur.cards[0].v === cur.cards[1].v);
-            document.getElementById('btn-double').disabled = (cur.cards.length !== 2);
-            if(!bjOver) getAdvice();
-        }
-
-        function calc(h) {
-            let s = 0, a = 0;
-            h.forEach(c => { if(c.v === 'A') a++; else if(['J','Q','K','10'].includes(c.v)) s += 10; else s += parseInt(c.v); });
-            for(let i=0; i<a; i++) s += (s + 11 <= 21) ? 11 : 1;
-            return s;
-        }
-
-        function getAdvice() {
-            const p = calc(bjHands[bjIdx].cards), d = valToNum(bjDealer[0].v), el = document.getElementById('bj-advice');
-            let adv = "Tirer (Hit)";
-            if(p >= 17) adv = "Rester (Stand)";
-            else if(p >= 13 && d <= 6) adv = "Rester (Stand)";
-            else if(p === 12 && (d >= 4 && d <= 6)) adv = "Rester (Stand)";
-            else if(p === 11) adv = "Doubler (Double)";
-            el.innerText = `Conseil Stratégique: ${adv}`;
-        }
-
-        function valToNum(v) { return (['J','Q','K','10'].includes(v)) ? 10 : (v === 'A' ? 11 : parseInt(v)); }
-
-        async function bjHit() { await dealBJ('p', bjIdx); if(calc(bjHands[bjIdx].cards) >= 21) bjNext(); }
-        async function bjDouble() { await dealBJ('p', bjIdx); bjNext(); }
-        async function bjSplit() {
-            const c = bjHands[bjIdx].cards.pop();
-            bjHands.splice(bjIdx + 1, 0, { cards: [c], status: 'play' });
-            await dealBJ('p', bjIdx);
-            updateBJUI();
-        }
-        function bjStand() { bjNext(); }
-        function bjNext() { if(bjIdx < bjHands.length - 1) { bjIdx++; updateBJUI(); } else { finishDealer(); } }
-
-        async function finishDealer() {
-            bjOver = true;
-            document.getElementById('bj-controls').classList.add('hidden');
-            while(calc(bjDealer) < 17) await dealBJ('d');
-            document.getElementById('bj-d-val').innerText = calc(bjDealer);
-            document.getElementById('bj-d-val').classList.remove('hidden');
-            document.getElementById('btn-next-hand').classList.remove('hidden');
-            updateBJUI();
-        }
-
-        // --- SPEED COUNT ---
-        function startSpeed() {
-            buildDeck();
-            document.getElementById('speed-setup').classList.add('hidden');
-            document.getElementById('speed-play').classList.remove('hidden');
-            const spd = parseFloat(document.getElementById('speed-sec').value) * 1000;
-            
-            speedTimer = setInterval(() => {
-                const c = deck.pop();
-                updateHiLo(c.v);
-                const box = document.getElementById('speed-card-box');
-                box.innerText = c.v; box.style.color = (c.s === '♥' || c.s === '♦') ? 'var(--red)' : 'black';
-                
-                let hint = "0";
-                if(['2','3','4','5','6'].includes(c.v)) hint = "+1";
-                if(['10','J','Q','K','A'].includes(c.v)) hint = "-1";
-                document.getElementById('speed-val-hint').innerText = hint;
-
-                if(document.getElementById('speed-rand-stop').checked && Math.random() < 0.12) {
-                    clearInterval(speedTimer);
-                    document.getElementById('speed-val-hint').innerText = "ARRÊT ALÉATOIRE !";
+            for(let i=0; i<numDecks; i++) {
+                for(let s of suits) {
+                    for(let v of values) {
+                        deck.push({ val: v, suit: s });
+                    }
                 }
-            }, spd);
-        }
-
-        // --- GLOBALS ---
-        function showAnalysis() {
-            clearInterval(speedTimer);
-            const dr = Math.max(0.5, deck.length / 52);
-            document.getElementById('ana-rc').innerText = (rc > 0 ? "+" : "") + rc;
-            document.getElementById('ana-tc').innerText = Math.floor(rc / dr);
-            document.getElementById('mod-ana').style.display = 'flex';
-        }
-
-        function openRules(type) {
-            const t = document.getElementById('mod-rules-text'), h = document.getElementById('mod-rules-title');
-            if(type === 'bj') {
-                h.innerText = "Règles Blackjack";
-                t.innerHTML = "• Dealer Stand on 17.<br>• Blackjack paye 3:2.<br>• Double sur n'importe quelles 2 cartes.<br>• Split illimité sur paires.<br>• Hi-Lo: 2-6 (+1), 7-9 (0), 10-A (-1).";
-            } else {
-                h.innerText = "Règles Comptage";
-                t.innerHTML = "• Entraînez-vous à garder le compte Hi-Lo.<br>• L'arrêt aléatoire teste votre mémoire.<br>• True Count = Running Count / Sabots restants.";
             }
-            document.getElementById('mod-rules').style.display = 'flex';
+            // Mélange de Fisher-Yates
+            for (let i = deck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [deck[i], deck[j]] = [deck[j], deck[i]];
+            }
         }
 
-        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        function getHiLoValue(val) {
+            if(['2','3','4','5','6'].includes(val)) return 1;
+            if(['10','J','Q','K','A'].includes(val)) return -1;
+            return 0;
+        }
+
+        // --- MOTEUR DE JEU ---
+        function startGame() {
+            const numDecks = parseInt(document.getElementById('deck-count').value);
+            createDeck(numDecks);
+            runningCount = 0;
+            isPaused = false;
+
+            document.getElementById('setup-screen').classList.add('hidden');
+            document.getElementById('game-screen').classList.remove('hidden');
+
+            // Animation de départ
+            const display = document.getElementById('card-display');
+            display.innerHTML = '<div style="font-size:2rem">PRÊT ?</div>';
+            display.className = 'card-display'; // Reset couleur
+            
+            setTimeout(() => {
+                dealNextCard();
+            }, 1000);
+        }
+
+        function dealNextCard() {
+            if(isPaused) return;
+
+            if(deck.length === 0) {
+                alert("Fin du sabot !");
+                resetGame();
+                return;
+            }
+
+            // Gestion Arrêt Aléatoire
+            const randomActive = document.getElementById('random-stop-toggle').checked;
+            // 15% de chance d'arrêt si activé
+            if(randomActive && Math.random() < 0.15) {
+                triggerPause(true); // true = mode aléatoire (caché)
+                return;
+            }
+
+            // Tirage
+            const card = deck.pop();
+            runningCount += getHiLoValue(card.val); // On met à jour le compte interne
+
+            // Affichage
+            renderCard(card);
+            document.getElementById('cards-left').innerText = deck.length;
+
+            // Timer pour la prochaine carte
+            const speed = parseFloat(document.getElementById('speed').value) * 1000;
+            gameInterval = setTimeout(dealNextCard, speed);
+        }
+
+        function renderCard(card) {
+            const display = document.getElementById('card-display');
+            display.innerHTML = `
+                <div class="card-suit-top">${card.suit}</div>
+                <div class="card-val">${card.val}</div>
+                <div class="card-suit-btm">${card.suit}</div>
+            `;
+            
+            if(card.suit === '♥' || card.suit === '♦') {
+                display.className = 'card-display red-card';
+            } else {
+                display.className = 'card-display';
+            }
+        }
+
+        // --- SYSTÈME DE PAUSE ---
+        
+        // Pause manuelle (bouton)
+        function manualPause() {
+            clearTimeout(gameInterval); // Stop immédiat
+            triggerPause(false); // false = mode manuel (révélé tout de suite)
+        }
+
+        function triggerPause(isRandom) {
+            clearTimeout(gameInterval);
+            isPaused = true;
+            
+            const modal = document.getElementById('pause-modal');
+            const title = document.getElementById('pause-title');
+            const hiddenMsg = document.getElementById('hidden-stats-msg');
+            const stats = document.getElementById('stats-container');
+            const btnReveal = document.getElementById('btn-reveal');
+            const btnResume = document.getElementById('btn-resume');
+
+            modal.style.display = 'flex';
+
+            // Calcul du True Count
+            const decksLeft = Math.max(0.5, deck.length / 52);
+            const tc = Math.floor(runningCount / decksLeft);
+            
+            document.getElementById('rc-val').innerText = runningCount;
+            document.getElementById('tc-val').innerText = tc;
+
+            if(isRandom) {
+                // Mode Aléatoire : On cache tout, l'utilisateur doit deviner
+                title.innerText = "ARRÊT ALÉATOIRE";
+                hiddenMsg.classList.remove('hidden');
+                stats.classList.add('hidden');
+                btnReveal.classList.remove('hidden');
+                btnResume.classList.add('hidden');
+            } else {
+                // Mode Manuel : On affiche tout de suite
+                title.innerText = "PAUSE";
+                hiddenMsg.classList.add('hidden');
+                stats.classList.remove('hidden');
+                btnReveal.classList.add('hidden');
+                btnResume.classList.remove('hidden');
+            }
+        }
+
+        function revealStats() {
+            document.getElementById('hidden-stats-msg').classList.add('hidden');
+            document.getElementById('stats-container').classList.remove('hidden');
+            document.getElementById('btn-reveal').classList.add('hidden');
+            document.getElementById('btn-resume').classList.remove('hidden');
+        }
+
+        function resumeGame() {
+            document.getElementById('pause-modal').style.display = 'none';
+            isPaused = false;
+            dealNextCard();
+        }
+
+        // --- FONCTIONS UTILITAIRES ---
+        function resetGame() {
+            clearTimeout(gameInterval);
+            document.getElementById('game-screen').classList.add('hidden');
+            document.getElementById('setup-screen').classList.remove('hidden');
+        }
+
+        function toggleRules() {
+            const el = document.getElementById('rules-modal');
+            el.style.display = (el.style.display === 'flex') ? 'none' : 'flex';
+        }
     </script>
 </body>
 </html>
-
